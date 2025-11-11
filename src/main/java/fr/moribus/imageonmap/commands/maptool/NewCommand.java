@@ -201,9 +201,9 @@ public class NewCommand extends IoMCommand {
             return;
         }
 
-        // Check map quota BEFORE charging
+        // Check map quota BEFORE charging (we're creating 1 new map, not multiple)
         try {
-            MapManager.checkMapLimitForPlayer(player.getUniqueId(), estimatedMapCount);
+            MapManager.checkMapLimitForPlayer(player.getUniqueId(), 1);
         } catch (MapManagerException ex) {
             // Show user-friendly error message based on the reason
             if (ex.getMessage().contains("maximum")) {

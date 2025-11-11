@@ -159,6 +159,16 @@ public abstract class MapManager {
     }
 
     /**
+     * Gets the number of ImageMap objects owned by the player (not map parts)
+     * This counts each map as 1, regardless of whether it's a single or splatter map
+     * @param playerUUID The player's UUID
+     * @return The number of maps
+     */
+    public static int getImageMapCount(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getImageMapCount();
+    }
+
+    /**
      * Gets the map limit for a player, checking permissions first, then falling back to config
      * @param playerUUID The player's UUID
      * @return The map limit, or 0 for unlimited

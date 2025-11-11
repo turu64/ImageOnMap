@@ -178,28 +178,28 @@ public class MapListGui extends ExplorerGui<ImageMap> {
 
 
         /* ** Statistics ** */
-        int mapPartCount = MapManager.getMapPartCount(offplayer.getUniqueId());
+        int imageMapCount = MapManager.getImageMapCount(offplayer.getUniqueId());
 
         int mapGlobalLimit = PluginConfiguration.MAP_GLOBAL_LIMIT.get();
         int mapPersonalLimit = MapManager.getPlayerMapLimit(offplayer.getUniqueId());
 
-        int mapPartGloballyLeft = mapGlobalLimit - MapManager.getMapCount();
-        int mapPartPersonallyLeft = mapPersonalLimit - mapPartCount;
+        int mapGloballyLeft = mapGlobalLimit - MapManager.getMapCount();
+        int mapPersonallyLeft = mapPersonalLimit - imageMapCount;
 
-        int mapPartLeft;
+        int mapLeft;
         if (mapGlobalLimit <= 0 && mapPersonalLimit <= 0) {
-            mapPartLeft = -1;
+            mapLeft = -1;
         } else if (mapGlobalLimit <= 0) {
-            mapPartLeft = mapPartPersonallyLeft;
+            mapLeft = mapPersonallyLeft;
         } else if (mapPersonalLimit <= 0) {
-            mapPartLeft = mapPartGloballyLeft;
+            mapLeft = mapGloballyLeft;
         } else {
-            mapPartLeft = Math.min(mapPartGloballyLeft, mapPartPersonallyLeft);
+            mapLeft = Math.min(mapGloballyLeft, mapPersonallyLeft);
         }
 
-        int imagesCount = MapManager.getMapList(offplayer.getUniqueId()).size();
+        int imagesCount = imageMapCount; // Same as getMapList().size(), but more efficient
         double percentageUsed =
-                mapPartLeft < 0 ? 0 : ((double) mapPartCount) / ((double) (mapPartCount + mapPartLeft)) * 100;
+                mapLeft < 0 ? 0 : ((double) imageMapCount) / ((double) (imageMapCount + mapLeft)) * 100;
 
         ItemStack statistics = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = statistics.getItemMeta();
@@ -207,13 +207,14 @@ public class MapListGui extends ExplorerGui<ImageMap> {
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.add(I.tn(getPlayerLocale(),
-                "{white}{0}{gray} image rendered", "{white}{0}{gray} images rendered", imagesCount));
-        lore.add(I.tn(getPlayerLocale(), "{white}{0}{gray} Minecraft map used",
-                "{white}{0}{gray} Minecraft maps used", mapPartCount));
+                "{white}{0}{gray} map created", "{white}{0}{gray} maps created", imagesCount));
+        int mapPartCount = MapManager.getMapPartCount(offplayer.getUniqueId());
+        lore.add(I.tn(getPlayerLocale(), "{white}{0}{gray} Minecraft map ID used",
+                "{white}{0}{gray} Minecraft map IDs used", mapPartCount));
 
-        if (mapPartLeft >= 0) {
+        if (mapLeft >= 0) {
             lore.add("");
-            lore.add(I.t(getPlayerLocale(), "{blue}Minecraft maps limits"));
+            lore.add(I.t(getPlayerLocale(), "{blue}Map quota limits"));
             lore.add("");
             lore.add(mapGlobalLimit == 0
                     ? I.t(getPlayerLocale(), "{gray}Server-wide limit: {white}unlimited")
@@ -221,8 +222,8 @@ public class MapListGui extends ExplorerGui<ImageMap> {
             lore.add("");
             lore.add(I.t(getPlayerLocale(), "{white}{0} %{gray} of your quota used",
                     (int) Math.rint(percentageUsed)));
-            lore.add(I.tn(getPlayerLocale(), "{white}{0}{gray} map left", "{white}{0}{gray} maps left",
-                    mapPartLeft));
+            lore.add(I.tn(getPlayerLocale(), "{white}{0}{gray} map slot left", "{white}{0}{gray} map slots left",
+                    mapLeft));
         }
         meta.setLore(lore);
         meta.addItemFlags(ItemFlag.values());

@@ -166,7 +166,7 @@ public class PlayerMapStore implements ConfigurationSerializable {
     /* ===== Getters & Setters ===== */
 
     public void checkMapLimit(ImageMap map) throws MapManagerException {
-        checkMapLimit(map.getMapCount());
+        checkMapLimit(1); // Check if we can add 1 more map
     }
 
     public void checkMapLimit(int newMapsCount) throws MapManagerException {
@@ -175,7 +175,8 @@ public class PlayerMapStore implements ConfigurationSerializable {
             return;
         }
 
-        if (getMapCount() + newMapsCount > limit) {
+        // Count the number of ImageMap objects (not map parts)
+        if (mapList.size() + newMapsCount > limit) {
             throw new MapManagerException(Reason.MAXIMUM_PLAYER_MAPS_EXCEEDED, limit);
         }
     }
@@ -270,8 +271,21 @@ public class PlayerMapStore implements ConfigurationSerializable {
 
     /* ****** Serializing ***** */
 
+    /**
+     * Gets the total number of map parts (for splatter maps, this counts each individual block)
+     * @return The total number of map parts
+     */
     public synchronized int getMapCount() {
         return this.mapCount;
+    }
+
+    /**
+     * Gets the number of ImageMap objects (the number of maps, not map parts)
+     * For quota purposes, this counts each map as 1, regardless of size
+     * @return The number of ImageMap objects
+     */
+    public synchronized int getImageMapCount() {
+        return this.mapList.size();
     }
 
     /* ****** Configuration Files management ***** */

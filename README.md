@@ -150,6 +150,10 @@ These permissions allow you to override the `map-player-limit` config setting on
 - `imageonmap.mapquota.unlimited` — Allows unlimited map creation, bypassing the configured limit. Default: `op`
 - `imageonmap.mapquota.<number>` — Sets a custom map limit for the player (e.g., `imageonmap.mapquota.50` allows 50 maps). If a player has multiple quota permissions, the highest value is used. Default: `false`
 
+**Important:** The quota system counts the **number of maps** (each `/tomap` command = 1 map), not the total number of map blocks. For example:
+- Creating a 2×2 splatter map counts as **1 map** towards the quota (not 4)
+- Creating 3 single maps and 2 splatter maps counts as **5 maps total**
+
 **Examples:**
 - Give a VIP player 100 maps: Grant `imageonmap.mapquota.100`
 - Give admins unlimited maps: Grant `imageonmap.mapquota.unlimited`
@@ -170,7 +174,8 @@ collect-data: true
 
 
 # Images rendered on maps consume Minecraft maps ID, and there are only 32 767 of them.
-# You can limit the maximum number of maps a player, or the whole server, can use with ImageOnMap.
+# You can limit the maximum number of maps a player, or the whole server, can create with ImageOnMap.
+# This counts the number of maps (not map blocks), so a 2×2 splatter map counts as 1 map.
 # 0 means unlimited.
 map-global-limit: 0
 map-player-limit: 0

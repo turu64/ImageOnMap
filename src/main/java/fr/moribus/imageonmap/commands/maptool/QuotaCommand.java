@@ -52,8 +52,8 @@ public class QuotaCommand extends IoMCommand {
     protected void run() throws CommandException {
         Player player = playerSender();
 
-        // Get current map count
-        int currentMaps = MapManager.getMapPartCount(player.getUniqueId());
+        // Get current map count (number of maps, not map parts)
+        int currentMaps = MapManager.getImageMapCount(player.getUniqueId());
 
         // Get player's map limit (checks permissions, then config)
         int mapLimit = MapManager.getPlayerMapLimit(player.getUniqueId());

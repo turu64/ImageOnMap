@@ -12,7 +12,8 @@ collect-data: true
 
 
 # Images rendered on maps consume Minecraft maps ID, and there are only 32 767 of them.
-# You can limit the maximum number of maps a player, or the whole server, can use with ImageOnMap.
+# You can limit the maximum number of maps a player, or the whole server, can create with ImageOnMap.
+# This counts the number of maps (not map blocks), so a 2×2 splatter map counts as 1 map.
 # 0 means unlimited.
 map-global-limit: 0
 map-player-limit: 0
