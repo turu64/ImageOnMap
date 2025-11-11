@@ -39,6 +39,8 @@ package fr.moribus.imageonmap.commands.maptool;
 import fr.moribus.imageonmap.ImageOnMap;
 import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.economy.VaultEconomyManager;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.map.ImageMap;
 import fr.moribus.imageonmap.map.MapManager;
 import fr.moribus.imageonmap.map.MapManagerException;
@@ -119,8 +121,19 @@ public class DeleteCommand extends IoMCommand {
                 }
 
                 try {
+                    int mapCount = map.getMapCount();
                     MapManager.deleteMap(map);
                     success(sender, I.t("Map successfully deleted."));
+
+                    // Process refund if economy is enabled
+                    if (VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(sender)) {
+                        if (VaultEconomyManager.refundPlayer(sender, mapCount)) {
+                            double refundAmount = VaultEconomyManager.calculateMapCost(mapCount)
+                                * fr.moribus.imageonmap.PluginConfiguration.ECONOMY_REFUND_PERCENTAGE.get();
+                            sender.sendMessage(LocaleManager.getMessage("economy.delete.refunded",
+                                VaultEconomyManager.formatCurrency(refundAmount), mapCount));
+                        }
+                    }
                 } catch (MapManagerException ex) {
                     ImageOnMap.getPlugin().getLogger().warning(I.t("A non-existent map was requested to be deleted", ex));
                     warning(sender, I.t("This map does not exist."));

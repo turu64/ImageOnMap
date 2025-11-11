@@ -93,19 +93,23 @@ public class MapItemManager implements Listener {
     }
 
     public static boolean give(Player player, ImageMap map) {
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] give() called for player " + player.getName() + " with map type: " + map.getClass().getSimpleName());
         if (map instanceof PosterMap) {
             return give(player, (PosterMap) map);
         } else if (map instanceof SingleMap) {
             return give(player, (SingleMap) map);
         }
+        ImageOnMap.getPlugin().getLogger().warning("[MapItemManager] Unknown map type for " + player.getName());
         return false;
     }
 
     public static boolean give(Player player, SingleMap map) {
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] give(SingleMap) called for player " + player.getName());
         return give(player, createMapItem(map, true));
     }
 
     public static boolean give(Player player, PosterMap map) {
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] give(PosterMap) called for player " + player.getName() + ", hasColumnData=" + map.hasColumnData());
         if (!map.hasColumnData()) {
             return giveParts(player, map);
         }
@@ -113,12 +117,16 @@ public class MapItemManager implements Listener {
     }
 
     private static boolean give(final Player player, final ItemStack item) {
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] give(ItemStack) called for player " + player.getName());
         boolean given = ItemUtils.give(player, item);
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] ItemUtils.give returned: " + given + " for " + player.getName());
 
         if (given) {
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 1, 1);
         }
 
+        // NOTE: This returns true if inventory is FULL (couldn't give item), false if successful
+        ImageOnMap.getPlugin().getLogger().info("[MapItemManager] Returning " + !given + " (inventory full=" + !given + ") for " + player.getName());
         return !given;
     }
 

@@ -39,7 +39,9 @@ package fr.moribus.imageonmap.commands.maptool;
 import fr.moribus.imageonmap.ImageOnMap;
 import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.i18n.I;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.image.ImageRendererExecutor;
 import fr.moribus.imageonmap.image.ImageUtils;
 import fr.moribus.imageonmap.map.ImageMap;
@@ -175,6 +177,29 @@ public class UpdateCommand extends IoMCommand {
 
                 int width = size[0];
                 int height = size[1];
+
+                // Economy check and charge
+                if (playerSender != null && VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(playerSender)) {
+                    int mapCount = width * height;
+                    double cost = VaultEconomyManager.calculateMapCost(mapCount);
+
+                    if (!VaultEconomyManager.hasEnoughMoney(playerSender, mapCount)) {
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.insufficient-funds"));
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.insufficient-funds-details",
+                            VaultEconomyManager.formatCurrency(cost),
+                            VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(playerSender))));
+                        return;
+                    }
+
+                    if (!VaultEconomyManager.chargePlayer(playerSender, mapCount)) {
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.charge-failed"));
+                        return;
+                    }
+
+                    playerSender.sendMessage(LocaleManager.getMessage("economy.update.charged",
+                        VaultEconomyManager.formatCurrency(cost), mapCount));
+                }
+
                 try {
                     if (playerSender != null) {
                         ActionBar.sendPermanentMessage(playerSender, ChatColor.DARK_GREEN + I.t("Updating..."));

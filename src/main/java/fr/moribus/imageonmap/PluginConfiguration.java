@@ -77,4 +77,19 @@ public final class PluginConfiguration {
 
     public static final Supplier<Integer> LIMIT_SIZE_Y = () -> PLUGIN.getConfig().getInt("limit-map-size-y");
 
+    public static final Supplier<Boolean> ECONOMY_ENABLED = () -> PLUGIN.getConfig().getBoolean("economy.enabled", false);
+
+    public static final Supplier<Double> ECONOMY_COST_PER_MAP = () -> PLUGIN.getConfig().getDouble("economy.cost-per-map", 1000.0);
+
+    public static final Supplier<Boolean> ECONOMY_REFUND_ON_DELETE = () -> PLUGIN.getConfig().getBoolean("economy.refund-on-delete", true);
+
+    public static final Supplier<Double> ECONOMY_REFUND_PERCENTAGE = () -> {
+        double percentage = PLUGIN.getConfig().getDouble("economy.refund-percentage", 0.5);
+        // Clamp between 0.0 and 1.0
+        return Math.max(0.0, Math.min(1.0, percentage));
+    };
+
+    public static final Supplier<String> ECONOMY_LOCALE = () -> PLUGIN.getConfig().getString("economy.locale", "en-US");
+
 }
+
