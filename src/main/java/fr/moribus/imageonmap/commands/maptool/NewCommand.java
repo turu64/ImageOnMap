@@ -39,13 +39,19 @@ package fr.moribus.imageonmap.commands.maptool;
 import fr.moribus.imageonmap.ImageOnMap;
 import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.i18n.I;
 import fr.moribus.imageonmap.image.ImageRendererExecutor;
 import fr.moribus.imageonmap.image.ImageUtils;
+import fr.moribus.imageonmap.image.PosterImage;
+import fr.moribus.imageonmap.map.MapManager;
 import fr.moribus.imageonmap.map.PosterMap;
 import fr.moribus.imageonmap.commands.CommandException;
 import fr.moribus.imageonmap.commands.CommandInfo;
 import fr.zcraft.quartzlib.tools.text.ActionBar;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -96,6 +102,31 @@ public class NewCommand extends IoMCommand {
             }
             scaling = resizeMode();
         }
+
+        // Economy check and charge
+        if (VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(player)) {
+            int estimatedMapCount = calculateEstimatedMapCount(url, scaling, width, height);
+            if (estimatedMapCount > 0) {
+                double cost = VaultEconomyManager.calculateMapCost(estimatedMapCount);
+
+                if (!VaultEconomyManager.hasEnoughMoney(player, estimatedMapCount)) {
+                    player.sendMessage(I.t("{ce}You don't have enough money to create this map!"));
+                    player.sendMessage(I.t("{ce}Cost: {0}, Your balance: {1}",
+                        VaultEconomyManager.formatCurrency(cost),
+                        VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(player))));
+                    return;
+                }
+
+                if (!VaultEconomyManager.chargePlayer(player, estimatedMapCount)) {
+                    player.sendMessage(I.t("{ce}Failed to charge your account. Map creation cancelled."));
+                    return;
+                }
+
+                player.sendMessage(I.t("{cs}Charged {0} for {1} map blocks.",
+                    VaultEconomyManager.formatCurrency(cost), estimatedMapCount));
+            }
+        }
+
         try {
             ActionBar.sendPermanentMessage(player, ChatColor.DARK_GREEN + I.t("Rendering..."));
             ImageRendererExecutor.render(url, scaling, player.getUniqueId(), width, height)
@@ -121,6 +152,52 @@ public class NewCommand extends IoMCommand {
                     });
         } finally {
             ActionBar.removeMessage(player);
+        }
+    }
+
+    /**
+     * Calculate the estimated number of map blocks needed for an image
+     *
+     * @param url     The image URL
+     * @param scaling The scaling type
+     * @param width   The width in maps (0 = auto)
+     * @param height  The height in maps (0 = auto)
+     * @return The estimated number of map blocks, or 0 if cannot calculate
+     */
+    private int calculateEstimatedMapCount(URL url, ImageUtils.ScalingType scaling, int width, int height) {
+        try {
+            // If width and height are specified, use them directly
+            if (width > 0 && height > 0) {
+                return width * height;
+            }
+
+            // Otherwise, download and check the image
+            BufferedImage image;
+            try (var stream = url.openStream()) {
+                image = ImageIO.read(stream);
+            }
+
+            if (image == null) {
+                return 0;
+            }
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            image.flush();
+
+            // If resize mode is used and dimensions are 0, it becomes a single map
+            if (scaling != ImageUtils.ScalingType.NONE && height <= 1 && width <= 1) {
+                return 1;
+            }
+
+            // Calculate the number of 128x128 blocks needed
+            int columns = (int) Math.ceil((double) imageWidth / 128.0);
+            int rows = (int) Math.ceil((double) imageHeight / 128.0);
+
+            return columns * rows;
+        } catch (IOException e) {
+            ImageOnMap.getPlugin().getLogger().warning("Failed to calculate map count for " + url + ": " + e.getMessage());
+            return 0;
         }
     }
 

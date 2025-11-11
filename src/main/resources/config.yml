@@ -26,3 +26,19 @@ limit-map-size-y: 0
 # Should the full image be saved when a map is rendered?
 save-full-image: false
 
+
+# Economy settings (requires Vault plugin)
+economy:
+  # Enable economy integration
+  enabled: false
+
+  # Cost per map block (e.g., 2x2 map = 4 blocks = 4000 with cost-per-map: 1000)
+  cost-per-map: 1000.0
+
+  # Whether to refund players when they delete a map
+  refund-on-delete: true
+
+  # Percentage of the original cost to refund (0.0 to 1.0)
+  # 0.5 = 50% refund, 1.0 = 100% refund
+  refund-percentage: 0.5
+

@@ -47,6 +47,7 @@ import fr.moribus.imageonmap.commands.maptool.ListCommand;
 import fr.moribus.imageonmap.commands.maptool.NewCommand;
 import fr.moribus.imageonmap.commands.maptool.RenameCommand;
 import fr.moribus.imageonmap.commands.maptool.UpdateCommand;
+import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.gui.Gui;
 import fr.moribus.imageonmap.i18n.I18n;
 import fr.moribus.imageonmap.image.MapInitEvent;
@@ -128,6 +129,7 @@ public final class ImageOnMap extends JavaPlugin {
         MapManager.init();
         MapInitEvent.init();
         MapItemManager.init();
+        VaultEconomyManager.init();
 
 
         Commands.register(
@@ -152,6 +154,7 @@ public final class ImageOnMap extends JavaPlugin {
     public void onDisable() {
         MapManager.exit();
         MapItemManager.exit();
+        VaultEconomyManager.exit();
 
         Gui.clearOpenGuis();
     }

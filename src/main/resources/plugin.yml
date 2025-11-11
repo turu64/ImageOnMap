@@ -2,6 +2,7 @@ name: ImageOnMap
 main: fr.moribus.imageonmap.ImageOnMap
 version: "${project.version}"
 api-version: "1.13"
+softdepend: [Vault]
 
 
 commands:
@@ -35,6 +36,7 @@ permissions:
       imageonmap.delete: true
       imageonmap.deleteother: false
       imageonmap.bypasssize: false
+      imageonmap.bypasscost: false
       imageonmap.give: false
       imageonmap.update: true
       imageonmap.updateother: false
@@ -101,6 +103,10 @@ permissions:
 
   imageonmap.bypasssize:
     description: "Allows you to create maps larger than the configured limit."
+    default: op
+
+  imageonmap.bypasscost:
+    description: "Allows you to create and update maps without paying the economy cost."
     default: op
 
   imageonmap.update:
