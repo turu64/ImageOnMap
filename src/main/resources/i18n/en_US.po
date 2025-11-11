@@ -602,3 +602,90 @@ msgstr "{ce}You must give an URL and a map name to update."
 #: src/main/java/fr/moribus/imageonmap/commands/maptool/UpdateCommand.java:72
 msgid "{ce}You must give a map name to update.."
 msgstr "{ce}You must give a map name to update.."
+
+#. Economy-related messages
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:123
+msgid "{ce}Invalid image URL or unable to calculate map size."
+msgstr "{ce}Invalid image URL or unable to calculate map size."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:142
+msgid "Map Creation Confirmation"
+msgstr "Map Creation Confirmation"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:150
+msgid "Map Size: "
+msgstr "Map Size: "
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:151
+#, java-format
+msgid "{0} blocks"
+msgstr "{0} blocks"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:156
+msgid "Cost: "
+msgstr "Cost: "
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:161
+msgid "Your Balance: "
+msgstr "Your Balance: "
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:171
+msgid "Click to confirm: "
+msgstr "Click to confirm: "
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:172
+msgid "[CONFIRM]"
+msgstr "[CONFIRM]"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:174
+msgid "Click to create the map"
+msgstr "Click to create the map"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:189
+msgid "{ce}You don't have enough money to create this map!"
+msgstr "{ce}You don't have enough money to create this map!"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:190
+#, java-format
+msgid "{ce}Cost: {0}, Your balance: {1}"
+msgstr "{ce}Cost: {0}, Your balance: {1}"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:198
+msgid "{ce}Failed to charge your account. Map creation cancelled."
+msgstr "{ce}Failed to charge your account. Map creation cancelled."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:203
+#, java-format
+msgid "{cs}Charged {0} for {1} map blocks."
+msgstr "{cs}Charged {0} for {1} map blocks."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:250
+msgid "{cs}Map created successfully!"
+msgstr "{cs}Map created successfully!"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/NewCommand.java:259
+msgid "{ce}Your inventory is full! Use '/maptool getremaining' to get your map."
+msgstr "{ce}Your inventory is full! Use '/maptool getremaining' to get your map."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/UpdateCommand.java:186
+msgid "{ce}You don't have enough money to update this map!"
+msgstr "{ce}You don't have enough money to update this map!"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/UpdateCommand.java:187
+#, java-format
+msgid "{ce}Cost: {0}, Your balance: {1}"
+msgstr "{ce}Cost: {0}, Your balance: {1}"
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/UpdateCommand.java:194
+msgid "{ce}Failed to charge your account. Map update cancelled."
+msgstr "{ce}Failed to charge your account. Map update cancelled."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/UpdateCommand.java:198
+#, java-format
+msgid "{cs}Charged {0} for updating {1} map blocks."
+msgstr "{cs}Charged {0} for updating {1} map blocks."
+
+#: src/main/java/fr/moribus/imageonmap/commands/maptool/DeleteCommand.java:132
+#, java-format
+msgid "{cs}Refunded {0} for {1} map blocks."
+msgstr "{cs}Refunded {0} for {1} map blocks."

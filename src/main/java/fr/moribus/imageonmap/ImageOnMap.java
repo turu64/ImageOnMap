@@ -107,6 +107,7 @@ public final class ImageOnMap extends JavaPlugin {
         }
 
         saveDefaultConfig();
+        migrateConfig();
         Gui.clearOpenGuis();
 
         JarFile jarFile = getJarFile();
@@ -157,6 +158,44 @@ public final class ImageOnMap extends JavaPlugin {
         VaultEconomyManager.exit();
 
         Gui.clearOpenGuis();
+    }
+
+    /**
+     * Migrates config by adding missing keys with default values
+     */
+    private void migrateConfig() {
+        boolean needsSave = false;
+
+        // Check and add economy section if missing
+        if (!getConfig().contains("economy")) {
+            getLogger().info("Adding missing 'economy' section to config.yml");
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("economy.enabled")) {
+            getConfig().set("economy.enabled", false);
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("economy.cost-per-map")) {
+            getConfig().set("economy.cost-per-map", 1000.0);
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("economy.refund-on-delete")) {
+            getConfig().set("economy.refund-on-delete", true);
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("economy.refund-percentage")) {
+            getConfig().set("economy.refund-percentage", 0.5);
+            needsSave = true;
+        }
+
+        if (needsSave) {
+            saveConfig();
+            getLogger().info("Config migration completed. New settings have been added to config.yml");
+        }
     }
 
     private void checkPluginDirectory(Path directory) throws IOException {

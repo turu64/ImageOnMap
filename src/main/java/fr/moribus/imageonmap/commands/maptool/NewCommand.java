@@ -118,6 +118,13 @@ public class NewCommand extends IoMCommand {
         int estimatedMapCount = calculateEstimatedMapCount(url, scaling, width, height);
         ImageOnMap.getPlugin().getLogger().info("[NewCommand] Estimated map count: " + estimatedMapCount);
 
+        // Check if the map size calculation failed
+        if (estimatedMapCount == 0) {
+            player.sendMessage(I.t("{ce}Invalid image URL or unable to calculate map size."));
+            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Failed to calculate map size for URL: " + url);
+            return;
+        }
+
         // Show confirmation for players without bypass
         if (!Permissions.BYPASS_COST.grantedTo(player) && !confirm) {
             double cost = VaultEconomyManager.isEnabled()
@@ -148,7 +155,7 @@ public class NewCommand extends IoMCommand {
 
             player.sendMessage(Component.text()
                 .append(Component.text(I.t("Map Size: ")).color(NamedTextColor.AQUA))
-                .append(Component.text(estimatedMapCount + " blocks").color(NamedTextColor.WHITE))
+                .append(Component.text(I.t("{0} blocks", estimatedMapCount)).color(NamedTextColor.WHITE))
                 .build());
 
             if (VaultEconomyManager.isEnabled()) {
@@ -169,7 +176,7 @@ public class NewCommand extends IoMCommand {
 
             player.sendMessage(Component.text()
                 .append(Component.text(I.t("Click to confirm: ")).color(NamedTextColor.YELLOW))
-                .append(Component.text("[CONFIRM]")
+                .append(Component.text(I.t("[CONFIRM]"))
                     .color(NamedTextColor.GREEN)
                     .hoverEvent(HoverEvent.showText(Component.text(I.t("Click to create the map"))))
                     .clickEvent(ClickEvent.runCommand(confirmCommand)))
