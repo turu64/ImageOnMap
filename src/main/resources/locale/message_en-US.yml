@@ -12,6 +12,8 @@ economy:
   quota-exceeded: "{ce}Cannot create map: {0}"
   quota-error: "{ce}Map creation failed: {0}"
   render-failed: "{ce}Failed to render the map. Please check the image URL and try again."
+  render-failed-refunded: "{ce}Map rendering failed. Your payment of {0} has been refunded."
+  render-failed-no-refund: "{ce}Map rendering failed. Please contact an administrator - refund failed."
 
   # Confirmation dialog
   confirmation-title: "Map Creation Confirmation"
@@ -33,6 +35,8 @@ economy:
     insufficient-funds-details: "{ce}Cost: {0}, Your balance: {1}"
     charge-failed: "{ce}Failed to charge your account. Map update cancelled."
     charged: "{cs}Charged {0} for updating {1} map blocks."
+    update-failed-refunded: "{ce}Map update failed. Your payment of {0} has been refunded."
+    update-failed-no-refund: "{ce}Map update failed. Please contact an administrator - refund failed."
 
   # Delete command
   delete:

@@ -216,6 +216,9 @@ public class NewCommand extends IoMCommand {
         }
 
         // Economy check and charge
+        final boolean economyCharged;
+        final double chargedAmount;
+
         if (VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(player)) {
             if (estimatedMapCount > 0) {
                 double cost = VaultEconomyManager.calculateMapCost(estimatedMapCount);
@@ -239,9 +242,18 @@ public class NewCommand extends IoMCommand {
                 player.sendMessage(LocaleManager.getMessage("economy.charged",
                     VaultEconomyManager.formatCurrency(cost), estimatedMapCount));
                 ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully charged " + player.getName() + " " + cost);
+                economyCharged = true;
+                chargedAmount = cost;
+            } else {
+                economyCharged = false;
+                chargedAmount = 0;
             }
-        } else if (Permissions.BYPASS_COST.grantedTo(player)) {
-            ImageOnMap.getPlugin().getLogger().info("[NewCommand] " + player.getName() + " has bypass cost permission");
+        } else {
+            if (Permissions.BYPASS_COST.grantedTo(player)) {
+                ImageOnMap.getPlugin().getLogger().info("[NewCommand] " + player.getName() + " has bypass cost permission");
+            }
+            economyCharged = false;
+            chargedAmount = 0;
         }
 
         try {
@@ -252,12 +264,25 @@ public class NewCommand extends IoMCommand {
                         ImageOnMap.getPlugin().getLogger().log(Level.SEVERE, "[NewCommand] Rendering failed for " + player.getName(), exception);
                         // Schedule message on main thread
                         org.bukkit.Bukkit.getScheduler().runTask(ImageOnMap.getPlugin(), () -> {
-                            // Check if it's a quota exception
-                            if (exception.getCause() instanceof MapManagerException) {
-                                player.sendMessage(LocaleManager.getMessage("economy.quota-exceeded", exception.getCause().getMessage()));
+                            // Refund if money was charged
+                            if (economyCharged) {
+                                if (VaultEconomyManager.refundPlayer(player, estimatedMapCount)) {
+                                    ImageOnMap.getPlugin().getLogger().info("[NewCommand] Refunded " + chargedAmount + " to " + player.getName() + " due to rendering failure");
+                                    player.sendMessage(LocaleManager.getMessage("economy.render-failed-refunded",
+                                        VaultEconomyManager.formatCurrency(chargedAmount)));
+                                } else {
+                                    ImageOnMap.getPlugin().getLogger().severe("[NewCommand] Failed to refund " + chargedAmount + " to " + player.getName());
+                                    player.sendMessage(LocaleManager.getMessage("economy.render-failed-no-refund"));
+                                }
                             } else {
-                                // Generic user-friendly error message
-                                player.sendMessage(LocaleManager.getMessage("economy.render-failed"));
+                                // No refund needed, just show error
+                                // Check if it's a quota exception
+                                if (exception.getCause() instanceof MapManagerException) {
+                                    player.sendMessage(LocaleManager.getMessage("economy.quota-exceeded", exception.getCause().getMessage()));
+                                } else {
+                                    // Generic user-friendly error message
+                                    player.sendMessage(LocaleManager.getMessage("economy.render-failed"));
+                                }
                             }
                             ActionBar.removeMessage(player);
                         });

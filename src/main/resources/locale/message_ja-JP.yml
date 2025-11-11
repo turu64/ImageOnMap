@@ -12,6 +12,8 @@ economy:
   quota-exceeded: "{ce}地図を作成できません: {0}"
   quota-error: "{ce}地図作成に失敗しました: {0}"
   render-failed: "{ce}地図のレンダリングに失敗しました。画像URLを確認して再度お試しください。"
+  render-failed-refunded: "{ce}地図のレンダリングに失敗しました。お支払いいただいた {0} は返金されました。"
+  render-failed-no-refund: "{ce}地図のレンダリングに失敗しました。管理者に連絡してください - 返金に失敗しました。"
 
   # 確認ダイアログ
   confirmation-title: "地図作成の確認"
@@ -33,6 +35,8 @@ economy:
     insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
     charge-failed: "{ce}アカウントからの請求に失敗しました。地図更新をキャンセルしました。"
     charged: "{cs}{0} を {1} 地図ブロック分の更新として請求しました。"
+    update-failed-refunded: "{ce}地図の更新に失敗しました。お支払いいただいた {0} は返金されました。"
+    update-failed-no-refund: "{ce}地図の更新に失敗しました。管理者に連絡してください - 返金に失敗しました。"
 
   # 削除コマンド
   delete:
