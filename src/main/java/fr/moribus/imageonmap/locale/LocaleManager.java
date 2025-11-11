@@ -37,6 +37,7 @@
 package fr.moribus.imageonmap.locale;
 
 import fr.moribus.imageonmap.ImageOnMap;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -130,7 +131,8 @@ public class LocaleManager {
             return key;
         }
 
-        return message;
+        // Replace formatting codes
+        return replaceFormattingCodes(message);
     }
 
     /**
@@ -140,9 +142,26 @@ public class LocaleManager {
      * @return The formatted message
      */
     public static String getMessage(String key, Object... args) {
-        String message = getMessage(key);
+        if (messages == null) {
+            return key;
+        }
+
+        String message = messages.getString(key);
+        if (message == null) {
+            ImageOnMap.getPlugin().getLogger().warning(
+                "Missing locale key '" + key + "' in locale " + currentLocale
+            );
+            return key;
+        }
+
+        // First, replace formatting codes like {cs}, {ce}, etc.
+        message = replaceFormattingCodes(message);
+
+        // Then, replace placeholders like {0}, {1}, etc.
         if (args.length > 0) {
             try {
+                // Escape single quotes for MessageFormat
+                message = message.replace("'", "''");
                 return MessageFormat.format(message, args);
             } catch (IllegalArgumentException e) {
                 ImageOnMap.getPlugin().getLogger().warning(
@@ -152,6 +171,43 @@ public class LocaleManager {
             }
         }
         return message;
+    }
+
+    /**
+     * Replaces formatting codes like {cs}, {ce} with actual color codes
+     * Based on I18n.replaceFormattingCodes()
+     * @param text The text to process
+     * @return The text with color codes replaced
+     */
+    private static String replaceFormattingCodes(String text) {
+        return text.replace("{black}", ChatColor.BLACK.toString())
+                .replace("{darkblue}", ChatColor.DARK_BLUE.toString())
+                .replace("{darkgreen}", ChatColor.DARK_GREEN.toString())
+                .replace("{darkaqua}", ChatColor.DARK_AQUA.toString())
+                .replace("{darkred}", ChatColor.DARK_RED.toString())
+                .replace("{darkpurple}", ChatColor.DARK_PURPLE.toString())
+                .replace("{gold}", ChatColor.GOLD.toString())
+                .replace("{gray}", ChatColor.GRAY.toString())
+                .replace("{darkgray}", ChatColor.DARK_GRAY.toString())
+                .replace("{blue}", ChatColor.BLUE.toString())
+                .replace("{green}", ChatColor.GREEN.toString())
+                .replace("{aqua}", ChatColor.AQUA.toString())
+                .replace("{red}", ChatColor.RED.toString())
+                .replace("{lightpurple}", ChatColor.LIGHT_PURPLE.toString())
+                .replace("{yellow}", ChatColor.YELLOW.toString())
+                .replace("{white}", ChatColor.WHITE.toString())
+                .replace("{bold}", ChatColor.BOLD.toString())
+                .replace("{strikethrough}", ChatColor.STRIKETHROUGH.toString())
+                .replace("{underline}", ChatColor.UNDERLINE.toString())
+                .replace("{italic}", ChatColor.ITALIC.toString())
+                .replace("{obfuscated}", ChatColor.MAGIC.toString())
+                .replace("{reset}", ChatColor.RESET.toString())
+                // Shorthand color codes
+                .replace("{ce}", ChatColor.RED.toString())        // error
+                .replace("{cc}", ChatColor.GOLD.toString())       // command
+                .replace("{ci}", ChatColor.WHITE.toString())      // info/notice
+                .replace("{cs}", ChatColor.GREEN.toString())      // success
+                .replace("{cst}", ChatColor.GRAY.toString());     // status
     }
 
     /**
