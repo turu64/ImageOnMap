@@ -179,6 +179,10 @@ public class UpdateCommand extends IoMCommand {
                 int height = size[1];
 
                 // Economy check and charge
+                final boolean economyCharged;
+                final double chargedAmount;
+                final int chargedMapCount;
+
                 if (playerSender != null && VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(playerSender)) {
                     int mapCount = width * height;
                     double cost = VaultEconomyManager.calculateMapCost(mapCount);
@@ -198,6 +202,13 @@ public class UpdateCommand extends IoMCommand {
 
                     playerSender.sendMessage(LocaleManager.getMessage("economy.update.charged",
                         VaultEconomyManager.formatCurrency(cost), mapCount));
+                    economyCharged = true;
+                    chargedAmount = cost;
+                    chargedMapCount = mapCount;
+                } else {
+                    economyCharged = false;
+                    chargedAmount = 0;
+                    chargedMapCount = 0;
                 }
 
                 try {
@@ -207,9 +218,21 @@ public class UpdateCommand extends IoMCommand {
                     ImageRendererExecutor.update(url1, scaling, uuid, map, width, height)
                             .exceptionally(exception -> {
                                 if (playerSender != null) {
-                                    playerSender.sendMessage(
-                                            I.t("{ce}Map rendering failed: {0}", exception.getMessage())
-                                    );
+                                    // Refund if money was charged
+                                    if (economyCharged) {
+                                        if (VaultEconomyManager.refundPlayer(playerSender, chargedMapCount)) {
+                                            ImageOnMap.getPlugin().getLogger().info("[UpdateCommand] Refunded " + chargedAmount + " to " + playerSender.getName() + " due to update failure");
+                                            playerSender.sendMessage(LocaleManager.getMessage("economy.update.update-failed-refunded",
+                                                VaultEconomyManager.formatCurrency(chargedAmount)));
+                                        } else {
+                                            ImageOnMap.getPlugin().getLogger().severe("[UpdateCommand] Failed to refund " + chargedAmount + " to " + playerSender.getName());
+                                            playerSender.sendMessage(LocaleManager.getMessage("economy.update.update-failed-no-refund"));
+                                        }
+                                    } else {
+                                        playerSender.sendMessage(
+                                                I.t("{ce}Map update failed: {0}", exception.getMessage())
+                                        );
+                                    }
                                 }
                                 ImageOnMap.getPlugin().getLogger()
                                         .warning("Rendering from " + (playerSender != null ? playerSender.getName() : sender.getName()) + " failed: "

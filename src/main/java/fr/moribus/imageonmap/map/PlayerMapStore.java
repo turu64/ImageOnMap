@@ -49,13 +49,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerMapStore implements ConfigurationSerializable {
@@ -163,18 +166,103 @@ public class PlayerMapStore implements ConfigurationSerializable {
     /* ===== Getters & Setters ===== */
 
     public void checkMapLimit(ImageMap map) throws MapManagerException {
-        checkMapLimit(map.getMapCount());
+        checkMapLimit(1); // Check if we can add 1 more map
     }
 
     public void checkMapLimit(int newMapsCount) throws MapManagerException {
-        int limit = PluginConfiguration.MAP_PLAYER_LIMIT.get();
+        int limit = getPlayerMapLimit();
         if (limit <= 0) {
             return;
         }
 
-        if (getMapCount() + newMapsCount > limit) {
+        // Count the number of ImageMap objects (not map parts)
+        if (mapList.size() + newMapsCount > limit) {
             throw new MapManagerException(Reason.MAXIMUM_PLAYER_MAPS_EXCEEDED, limit);
         }
+    }
+
+    /**
+     * Gets the map limit for this player, checking permissions first, then falling back to config
+     * @return The map limit, or 0 for unlimited
+     */
+    public int getPlayerMapLimit() {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null) {
+            // Player is offline, use config default
+            return PluginConfiguration.MAP_PLAYER_LIMIT.get();
+        }
+
+        // Check for unlimited permission
+        if (player.hasPermission("imageonmap.mapquota.unlimited")) {
+            return 0; // 0 = unlimited
+        }
+
+        // Check for specific quota permissions (e.g., imageonmap.mapquota.50)
+        int maxQuota = -1;
+        for (PermissionAttachmentInfo permInfo : player.getEffectivePermissions()) {
+            String permission = permInfo.getPermission();
+            if (permission.startsWith("imageonmap.mapquota.") && permInfo.getValue()) {
+                String quotaStr = permission.substring("imageonmap.mapquota.".length());
+                try {
+                    int quota = Integer.parseInt(quotaStr);
+                    if (quota > maxQuota) {
+                        maxQuota = quota;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore invalid quota permissions (like "unlimited")
+                }
+            }
+        }
+
+        // If a specific quota was found, use it
+        if (maxQuota >= 0) {
+            return maxQuota;
+        }
+
+        // Fall back to config default
+        return PluginConfiguration.MAP_PLAYER_LIMIT.get();
+    }
+
+    /**
+     * Gets the maximum map size (in blocks) for this player, checking permissions first, then falling back to config
+     * @return The maximum map size in blocks, or 0 for unlimited
+     */
+    public int getPlayerMaxMapSize() {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null) {
+            // Player is offline, use config default
+            return PluginConfiguration.MAX_MAP_SIZE.get();
+        }
+
+        // Check for bypass permission (unlimited)
+        if (player.hasPermission("imageonmap.bypassmaxsize")) {
+            return 0; // 0 = unlimited
+        }
+
+        // Check for specific max size permissions (e.g., imageonmap.maxsize.200)
+        int maxSize = -1;
+        for (PermissionAttachmentInfo permInfo : player.getEffectivePermissions()) {
+            String permission = permInfo.getPermission();
+            if (permission.startsWith("imageonmap.maxsize.") && permInfo.getValue()) {
+                String sizeStr = permission.substring("imageonmap.maxsize.".length());
+                try {
+                    int size = Integer.parseInt(sizeStr);
+                    if (size > maxSize) {
+                        maxSize = size;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore invalid size permissions
+                }
+            }
+        }
+
+        // If a specific size was found, use it
+        if (maxSize >= 0) {
+            return maxSize;
+        }
+
+        // Fall back to config default
+        return PluginConfiguration.MAX_MAP_SIZE.get();
     }
 
     public UUID getUUID() {
@@ -183,8 +271,21 @@ public class PlayerMapStore implements ConfigurationSerializable {
 
     /* ****** Serializing ***** */
 
+    /**
+     * Gets the total number of map parts (for splatter maps, this counts each individual block)
+     * @return The total number of map parts
+     */
     public synchronized int getMapCount() {
         return this.mapCount;
+    }
+
+    /**
+     * Gets the number of ImageMap objects (the number of maps, not map parts)
+     * For quota purposes, this counts each map as 1, regardless of size
+     * @return The number of ImageMap objects
+     */
+    public synchronized int getImageMapCount() {
+        return this.mapList.size();
     }
 
     /* ****** Configuration Files management ***** */

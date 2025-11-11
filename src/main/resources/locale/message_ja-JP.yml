@@ -9,6 +9,11 @@ economy:
   insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
   charge-failed: "{ce}アカウントからの請求に失敗しました。地図作成をキャンセルしました。"
   inventory-full: "{ce}インベントリがいっぱいです！ '/maptool getremaining' で地図を入手してください。"
+  quota-exceeded: "{ce}地図を作成できません: {0}"
+  quota-error: "{ce}地図作成に失敗しました: {0}"
+  render-failed: "{ce}地図のレンダリングに失敗しました。画像URLを確認して再度お試しください。"
+  render-failed-refunded: "{ce}地図のレンダリングに失敗しました。お支払いいただいた {0} は返金されました。"
+  render-failed-no-refund: "{ce}地図のレンダリングに失敗しました。管理者に連絡してください - 返金に失敗しました。"
 
   # 確認ダイアログ
   confirmation-title: "地図作成の確認"
@@ -30,7 +35,28 @@ economy:
     insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
     charge-failed: "{ce}アカウントからの請求に失敗しました。地図更新をキャンセルしました。"
     charged: "{cs}{0} を {1} 地図ブロック分の更新として請求しました。"
+    update-failed-refunded: "{ce}地図の更新に失敗しました。お支払いいただいた {0} は返金されました。"
+    update-failed-no-refund: "{ce}地図の更新に失敗しました。管理者に連絡してください - 返金に失敗しました。"
 
   # 削除コマンド
   delete:
     refunded: "{cs}{0} を {1} 地図ブロック分返金しました。"
+
+  # 地図サイズ制限
+  max-size-exceeded: "{ce}地図サイズ（{0} ブロック）があなたの上限（{1} ブロック）を超えています！"
+  max-size-exceeded-unlimited: "{ce}地図サイズ（{0} ブロック）がサーバーの上限（{1} ブロック）を超えています！"
+
+# クォータコマンド
+quota:
+  unlimited-quota: "{cs}地図の作成数は無制限です。現在の地図数: {0}"
+  quota-header: "{ci}========== 地図クォータ =========="
+  current-maps: "{ci}現在の地図数: {0}"
+  map-limit: "{ci}地図上限: {0}"
+  remaining-maps: "{cs}残り作成可能数: {0}"
+  usage-percentage: "{ci}使用率: {0}%"
+
+# 最大サイズコマンド
+maxsize:
+  unlimited-size: "{cs}無制限のサイズの地図を作成できます。"
+  size-limit: "{ci}最大地図サイズ: {0} ブロック"
+  size-info: "{ci}例: 10×10の地図 = 100 ブロック"

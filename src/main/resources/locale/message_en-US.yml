@@ -9,6 +9,11 @@ economy:
   insufficient-funds-details: "{ce}Cost: {0}, Your balance: {1}"
   charge-failed: "{ce}Failed to charge your account. Map creation cancelled."
   inventory-full: "{ce}Your inventory is full! Use '/maptool getremaining' to get your map."
+  quota-exceeded: "{ce}Cannot create map: {0}"
+  quota-error: "{ce}Map creation failed: {0}"
+  render-failed: "{ce}Failed to render the map. Please check the image URL and try again."
+  render-failed-refunded: "{ce}Map rendering failed. Your payment of {0} has been refunded."
+  render-failed-no-refund: "{ce}Map rendering failed. Please contact an administrator - refund failed."
 
   # Confirmation dialog
   confirmation-title: "Map Creation Confirmation"
@@ -30,7 +35,28 @@ economy:
     insufficient-funds-details: "{ce}Cost: {0}, Your balance: {1}"
     charge-failed: "{ce}Failed to charge your account. Map update cancelled."
     charged: "{cs}Charged {0} for updating {1} map blocks."
+    update-failed-refunded: "{ce}Map update failed. Your payment of {0} has been refunded."
+    update-failed-no-refund: "{ce}Map update failed. Please contact an administrator - refund failed."
 
   # Delete command
   delete:
     refunded: "{cs}Refunded {0} for {1} map blocks."
+
+  # Map size limit
+  max-size-exceeded: "{ce}Map size ({0} blocks) exceeds your limit of {1} blocks!"
+  max-size-exceeded-unlimited: "{ce}Map size ({0} blocks) exceeds the server limit of {1} blocks!"
+
+# Quota command
+quota:
+  unlimited-quota: "{cs}You have unlimited map quota. Current maps: {0}"
+  quota-header: "{ci}========== Map Quota =========="
+  current-maps: "{ci}Current maps: {0}"
+  map-limit: "{ci}Map limit: {0}"
+  remaining-maps: "{cs}Remaining maps: {0}"
+  usage-percentage: "{ci}Usage: {0}%"
+
+# Max Size command
+maxsize:
+  unlimited-size: "{cs}You can create maps of unlimited size."
+  size-limit: "{ci}Maximum map size: {0} blocks"
+  size-info: "{ci}For example, a 10×10 map = 100 blocks"

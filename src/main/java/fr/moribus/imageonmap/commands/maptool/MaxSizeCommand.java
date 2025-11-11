@@ -34,55 +34,40 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-package fr.moribus.imageonmap;
+package fr.moribus.imageonmap.commands.maptool;
 
+import fr.moribus.imageonmap.Permissions;
+import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.locale.LocaleManager;
+import fr.moribus.imageonmap.map.MapManager;
+import fr.moribus.imageonmap.commands.CommandException;
+import fr.moribus.imageonmap.commands.CommandInfo;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import org.bukkit.permissions.Permissible;
+@CommandInfo(name = "maxsize")
+public class MaxSizeCommand extends IoMCommand {
 
-public enum Permissions {
-    NEW("imageonmap.new", "imageonmap.userender"),
-    LIST("imageonmap.list"),
-    LISTOTHER("imageonmap.listother"),
-    GET("imageonmap.get"),
-    GETOTHER("imageonmap.getother"),
-    RENAME("imageonmap.rename"),
-    PLACE_SPLATTER_MAP("imageonmap.placesplattermap"),
-    REMOVE_SPLATTER_MAP("imageonmap.removesplattermap"),
-    DELETE("imageonmap.delete"),
-    DELETEOTHER("imageonmap.deleteother"),
-    UPDATE("imageonmap.update"),
-    UPDATEOTHER("imageonmap.updateother"),
-    ADMINISTRATIVE("imageonmap.administrative"),
-    BYPASS_SIZE("imageonmap.bypasssize"),
-    BYPASS_COST("imageonmap.bypasscost"),
-    BYPASS_MAX_SIZE("imageonmap.bypassmaxsize"),
-    GIVE("imageonmap.give");
+    @Override
+    protected void run() throws CommandException {
+        Player player = playerSender();
 
-    private final String permission;
-    private final String[] aliases;
+        // Get player's maximum map size (checks permissions, then config)
+        int maxMapSize = MapManager.getPlayerMaxMapSize(player.getUniqueId());
 
-    Permissions(String permission, String... aliases) {
-        this.permission = permission;
-        this.aliases = aliases;
+        // Display max size information
+        if (maxMapSize <= 0) {
+            // Unlimited size
+            player.sendMessage(LocaleManager.getMessage("maxsize.unlimited-size"));
+        } else {
+            // Limited size
+            player.sendMessage(LocaleManager.getMessage("maxsize.size-limit", maxMapSize));
+            player.sendMessage(LocaleManager.getMessage("maxsize.size-info"));
+        }
     }
 
-    /**
-     * Checks if this permission is granted to the given permissible.
-     *
-     * @param permissible The permissible to check.
-     * @return {@code true} if this permission is granted to the permissible.
-     */
-    public boolean grantedTo(Permissible permissible) {
-        if (permissible.hasPermission(permission)) {
-            return true;
-        }
-
-        for (String alias : aliases) {
-            if (permissible.hasPermission(alias)) {
-                return true;
-            }
-        }
-
-        return false;
+    @Override
+    public boolean canExecute(CommandSender sender) {
+        return Permissions.LIST.grantedTo(sender);
     }
 }

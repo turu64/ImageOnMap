@@ -81,10 +81,29 @@ Examples:
 Update a specified map (the field PlayerName is optional, by default it will look in the command sender store) 
 - Can be used by a command block and by server console, if so the field Playername becomes mandatory
 Examples:
-    - `/maptool update "A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg ` Will update the map named "A very cool map name" 
+    - `/maptool update "A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg ` Will update the map named "A very cool map name"
     - `/maptool update AmauryPi:"A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg covered` Will update AmauryPi's map and set it to covered
 - Permissions: `imageonmap.update`, `imageonmap.updateother`
-### `/maptool <new|list|get|delete|explore|update|give|rename|migrate>`
+
+### `/maptool quota`
+
+Displays the player's current map quota usage and remaining maps.
+
+- This command can only be used by a player.
+- Shows the current number of maps, map limit, remaining maps, and usage percentage.
+- If the player has unlimited quota (via `imageonmap.mapquota.unlimited` or permission-based quotas), it will display "unlimited" instead.
+- Permission: `imageonmap.list` (same as explore/list commands)
+
+### `/maptool maxsize`
+
+Displays the player's maximum map size limit in blocks.
+
+- This command can only be used by a player.
+- Shows the maximum map size (width × height in blocks) the player can create.
+- If the player has unlimited size (via `imageonmap.bypassmaxsize` or permission-based limits), it will display "unlimited" instead.
+- Permission: `imageonmap.list` (same as explore/list commands)
+
+### `/maptool <new|list|get|delete|explore|update|give|rename|migrate|quota|maxsize>`
 
 Main command to manage the maps. The less used in everyday usage, too.
 
@@ -93,6 +112,8 @@ Main command to manage the maps. The less used in everyday usage, too.
 - `/maptool explore` is an alias of `/maps`.
 - `/maptool give` is an alias of `/givemap`.
 - `/maptool update` allow to update a specific map.
+- `/maptool quota` displays the player's current map quota usage.
+- `/maptool maxsize` displays the player's maximum map size limit.
 - `/maptool migrate` migrates the old maps when you upgrade from IoM <= 2.7 to IoM 3.0. You HAVE TO execute this command to retrieve all maps when you do such a migration.
 - the followings commands come with an extra permission `imageonmap.CMDNAMEother`:
   - `/maptool list|get|delete|explore|update`
@@ -104,7 +125,9 @@ Main command to manage the maps. The less used in everyday usage, too.
   - `imageonmap.administrative` for `/maptool migrate`.
   - `imageonmap.explore` for `/maptool explore`;
   - `imageonmap.update` for `/maptool update`;
-  - `imageonmap.give` for `/maptool give`.
+  - `imageonmap.give` for `/maptool give`;
+  - `imageonmap.list` for `/maptool quota`;
+  - `imageonmap.list` for `/maptool maxsize`.
   
 
 ### About the permissions
@@ -117,6 +140,22 @@ You can grant `imageonmap.*` to users, as this permission is a shortcut for all 
 #### Economy-related permissions
 
 - `imageonmap.bypasscost` — Allows players to create and update maps without paying the economy cost. Default: `op`
+
+#### Map quota permissions
+
+These permissions allow you to override the `map-player-limit` config setting on a per-player basis:
+
+- `imageonmap.mapquota.unlimited` — Allows unlimited map creation, bypassing the configured limit. Default: `op`
+- `imageonmap.mapquota.<number>` — Sets a custom map limit for the player (e.g., `imageonmap.mapquota.50` allows 50 maps). If a player has multiple quota permissions, the highest value is used. Default: `false`
+
+**Important:** The quota system counts the **number of maps** (each `/tomap` command = 1 map), not the total number of map blocks. For example:
+- Creating a 2×2 splatter map counts as **1 map** towards the quota (not 4)
+- Creating 3 single maps and 2 splatter maps counts as **5 maps total**
+
+**Examples:**
+- Give a VIP player 100 maps: Grant `imageonmap.mapquota.100`
+- Give admins unlimited maps: Grant `imageonmap.mapquota.unlimited`
+- Default players use the `map-player-limit` value from config.yml
 
 
 ## Configuration
@@ -133,10 +172,17 @@ collect-data: true
 
 
 # Images rendered on maps consume Minecraft maps ID, and there are only 32 767 of them.
-# You can limit the maximum number of maps a player, or the whole server, can use with ImageOnMap.
+# You can limit the maximum number of maps a player, or the whole server, can create with ImageOnMap.
+# This counts the number of maps (not map blocks), so a 2×2 splatter map counts as 1 map.
 # 0 means unlimited.
 map-global-limit: 0
 map-player-limit: 0
+
+
+# Maximum map size in blocks (width x height). Players need imageonmap.bypassmaxsize to bypass this limit.
+# For example, a 10x10 map = 100 blocks total. 0 means unlimited.
+# Permissions like imageonmap.maxsize.<number> can override this value per player.
+max-map-size: 100
 
 
 # Maximum size in pixels for an image to be. 0 is unlimited.
@@ -184,6 +230,41 @@ To enable economy features:
 3. Customize costs, refund settings, and locale as needed
 4. Optionally translate messages by copying `locale/message_en-US.yml` to other locales
 
+### Map Size Limit System
+
+ImageOnMap allows you to restrict the maximum map size (in blocks) that players can create:
+
+- **Default limit** set via `max-map-size` in config.yml (default: 100 blocks)
+- **Size calculation**: Width × Height (e.g., 10×10 map = 100 blocks)
+- **Per-player limits** via permissions:
+  - `imageonmap.bypassmaxsize` - Unlimited map size (default: OP)
+  - `imageonmap.maxsize.<number>` - Specific limit (e.g., `imageonmap.maxsize.200` allows up to 200 blocks)
+  - If multiple maxsize permissions are present, the highest value is used
+- **Check limit**: Use `/maptool maxsize` to see your current limit
+
+Example permission setup:
+```yaml
+# LuckPerms example
+luckperms:
+  user:
+    regular_player:
+      permissions:
+        - imageonmap.new: true
+        # Uses default config value (100 blocks)
+
+    vip_player:
+      permissions:
+        - imageonmap.new: true
+        - imageonmap.maxsize.200: true
+        # Can create maps up to 200 blocks
+
+    admin:
+      permissions:
+        - imageonmap.new: true
+        - imageonmap.bypassmaxsize: true
+        # Unlimited map size
+```
+
 ## Changelog
 
 ### 5.1.0 — Economy & Minecraft 1.21.4 Update
@@ -200,7 +281,17 @@ This version adds Vault economy integration and updates to Minecraft 1.21.4 comp
   - Create `locale/message_<locale>.yml` files (e.g., `message_ja-JP.yml`)
   - Includes full Japanese translation (`message_ja-JP.yml`)
   - Supports color codes and placeholders like existing i18n system
+- **Map Size Limit System** — Restrict maximum map size (width × height) per player
+  - Default limit configurable via `max-map-size` in config.yml (default: 100 blocks)
+  - Per-player limits via `imageonmap.maxsize.<number>` permissions
+  - Bypass permission for unlimited size (`imageonmap.bypassmaxsize`)
+  - Check current limit with `/maptool maxsize` command
+  - Prevents money loss by checking size before charging
 - **Map Size Display** — Confirmation shows dimensions: "4 blocks (2×2)"
+- **Per-Player Map Quotas** — Override map-player-limit via permissions
+  - `imageonmap.mapquota.<number>` for specific limits
+  - `imageonmap.mapquota.unlimited` for unlimited maps
+  - Check current quota with `/maptool quota` command
 - **Config Migration** — Automatically adds new config options on plugin update
 
 **Technical Changes:**
@@ -212,13 +303,32 @@ This version adds Vault economy integration and updates to Minecraft 1.21.4 comp
 
 **Configuration:**
 - New `economy` section in config.yml with 5 settings
-- New permission: `imageonmap.bypasscost` (default: op)
+- New `max-map-size` config option (default: 100 blocks)
+- New permissions:
+  - `imageonmap.bypasscost` (default: op) - Free map creation
+  - `imageonmap.bypassmaxsize` (default: op) - Unlimited map size
+  - `imageonmap.maxsize.<number>` (default: false) - Custom size limit
+  - `imageonmap.mapquota.<number>` (default: false) - Custom map quota
+  - `imageonmap.mapquota.unlimited` (default: op) - Unlimited map quota
 - New locale files in `locale/` directory
+- New commands: `/maptool quota` and `/maptool maxsize`
 
 **Requirements:**
 - Minecraft 1.21.4+ (Paper server)
 - Vault plugin (optional, for economy features)
 - Economy plugin (e.g., EssentialsX, if using economy)
+
+**Bug Fixes (Post-5.1.0):**
+- **Fixed quota counting** — Quota system now correctly counts the number of maps instead of map blocks
+  - Previously: Creating a 2×2 splatter map counted as 4 towards quota
+  - Now: Creating any size map counts as 1 towards quota
+  - This matches user expectations and makes quota limits more predictable
+- **Fixed quota check in renderPoster** — Rendering process now checks for 1 map instead of map block count
+  - Prevents "quota exceeded" errors during rendering after pre-check passed
+- **Added automatic refund on failure** — Players are now automatically refunded if map creation or update fails
+  - Refunds occur for any rendering errors, quota failures, or technical issues
+  - Prevents money loss due to technical problems
+  - Added locale messages: `render-failed-refunded`, `render-failed-no-refund`, `update-failed-refunded`, `update-failed-no-refund`
 
 ### 5.0.1 — Hard Forked by Okocraft Team
 

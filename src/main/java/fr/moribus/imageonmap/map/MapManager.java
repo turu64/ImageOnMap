@@ -158,6 +158,44 @@ public abstract class MapManager {
         return getPlayerMapStore(playerUUID).getMapCount();
     }
 
+    /**
+     * Gets the number of ImageMap objects owned by the player (not map parts)
+     * This counts each map as 1, regardless of whether it's a single or splatter map
+     * @param playerUUID The player's UUID
+     * @return The number of maps
+     */
+    public static int getImageMapCount(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getImageMapCount();
+    }
+
+    /**
+     * Gets the map limit for a player, checking permissions first, then falling back to config
+     * @param playerUUID The player's UUID
+     * @return The map limit, or 0 for unlimited
+     */
+    public static int getPlayerMapLimit(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getPlayerMapLimit();
+    }
+
+    /**
+     * Checks if a player can create maps with the given count without exceeding quota
+     * @param playerUUID The player's UUID
+     * @param newMapsCount The number of new maps to create
+     * @throws MapManagerException if the player would exceed their map quota
+     */
+    public static void checkMapLimitForPlayer(UUID playerUUID, int newMapsCount) throws MapManagerException {
+        getPlayerMapStore(playerUUID).checkMapLimit(newMapsCount);
+    }
+
+    /**
+     * Gets the maximum map size (in blocks) for the given player.
+     * @param playerUUID The player's UUID
+     * @return The maximum map size in blocks, or 0 for unlimited
+     */
+    public static int getPlayerMaxMapSize(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getPlayerMaxMapSize();
+    }
+
     public static ImageMap getMap(UUID playerUUID, String mapId) {
         return getPlayerMapStore(playerUUID).getMap(mapId);
     }

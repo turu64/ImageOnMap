@@ -44,7 +44,9 @@ import fr.moribus.imageonmap.commands.maptool.GetCommand;
 import fr.moribus.imageonmap.commands.maptool.GetRemainingCommand;
 import fr.moribus.imageonmap.commands.maptool.GiveCommand;
 import fr.moribus.imageonmap.commands.maptool.ListCommand;
+import fr.moribus.imageonmap.commands.maptool.MaxSizeCommand;
 import fr.moribus.imageonmap.commands.maptool.NewCommand;
+import fr.moribus.imageonmap.commands.maptool.QuotaCommand;
 import fr.moribus.imageonmap.commands.maptool.RenameCommand;
 import fr.moribus.imageonmap.commands.maptool.UpdateCommand;
 import fr.moribus.imageonmap.economy.VaultEconomyManager;
@@ -145,7 +147,9 @@ public final class ImageOnMap extends JavaPlugin {
                 GiveCommand.class,
                 GetRemainingCommand.class,
                 ExploreCommand.class,
-                UpdateCommand.class
+                UpdateCommand.class,
+                QuotaCommand.class,
+                MaxSizeCommand.class
         );
 
         Commands.registerShortcut("maptool", NewCommand.class, "tomap");
@@ -196,6 +200,11 @@ public final class ImageOnMap extends JavaPlugin {
 
         if (!getConfig().contains("economy.locale")) {
             getConfig().set("economy.locale", "en-US");
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("max-map-size")) {
+            getConfig().set("max-map-size", 100);
             needsSave = true;
         }
 

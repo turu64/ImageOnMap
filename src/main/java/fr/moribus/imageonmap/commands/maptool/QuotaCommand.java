@@ -34,55 +34,49 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-package fr.moribus.imageonmap;
+package fr.moribus.imageonmap.commands.maptool;
 
+import fr.moribus.imageonmap.Permissions;
+import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.locale.LocaleManager;
+import fr.moribus.imageonmap.map.MapManager;
+import fr.moribus.imageonmap.commands.CommandException;
+import fr.moribus.imageonmap.commands.CommandInfo;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import org.bukkit.permissions.Permissible;
+@CommandInfo(name = "quota")
+public class QuotaCommand extends IoMCommand {
 
-public enum Permissions {
-    NEW("imageonmap.new", "imageonmap.userender"),
-    LIST("imageonmap.list"),
-    LISTOTHER("imageonmap.listother"),
-    GET("imageonmap.get"),
-    GETOTHER("imageonmap.getother"),
-    RENAME("imageonmap.rename"),
-    PLACE_SPLATTER_MAP("imageonmap.placesplattermap"),
-    REMOVE_SPLATTER_MAP("imageonmap.removesplattermap"),
-    DELETE("imageonmap.delete"),
-    DELETEOTHER("imageonmap.deleteother"),
-    UPDATE("imageonmap.update"),
-    UPDATEOTHER("imageonmap.updateother"),
-    ADMINISTRATIVE("imageonmap.administrative"),
-    BYPASS_SIZE("imageonmap.bypasssize"),
-    BYPASS_COST("imageonmap.bypasscost"),
-    BYPASS_MAX_SIZE("imageonmap.bypassmaxsize"),
-    GIVE("imageonmap.give");
+    @Override
+    protected void run() throws CommandException {
+        Player player = playerSender();
 
-    private final String permission;
-    private final String[] aliases;
+        // Get current map count (number of maps, not map parts)
+        int currentMaps = MapManager.getImageMapCount(player.getUniqueId());
 
-    Permissions(String permission, String... aliases) {
-        this.permission = permission;
-        this.aliases = aliases;
+        // Get player's map limit (checks permissions, then config)
+        int mapLimit = MapManager.getPlayerMapLimit(player.getUniqueId());
+
+        // Display quota information
+        if (mapLimit <= 0) {
+            // Unlimited maps
+            player.sendMessage(LocaleManager.getMessage("quota.unlimited-quota", currentMaps));
+        } else {
+            // Limited maps
+            int remaining = Math.max(0, mapLimit - currentMaps);
+            double percentage = ((double) currentMaps / (double) mapLimit) * 100.0;
+
+            player.sendMessage(LocaleManager.getMessage("quota.quota-header"));
+            player.sendMessage(LocaleManager.getMessage("quota.current-maps", currentMaps));
+            player.sendMessage(LocaleManager.getMessage("quota.map-limit", mapLimit));
+            player.sendMessage(LocaleManager.getMessage("quota.remaining-maps", remaining));
+            player.sendMessage(LocaleManager.getMessage("quota.usage-percentage", String.format("%.1f", percentage)));
+        }
     }
 
-    /**
-     * Checks if this permission is granted to the given permissible.
-     *
-     * @param permissible The permissible to check.
-     * @return {@code true} if this permission is granted to the permissible.
-     */
-    public boolean grantedTo(Permissible permissible) {
-        if (permissible.hasPermission(permission)) {
-            return true;
-        }
-
-        for (String alias : aliases) {
-            if (permissible.hasPermission(alias)) {
-                return true;
-            }
-        }
-
-        return false;
+    @Override
+    public boolean canExecute(CommandSender sender) {
+        return Permissions.LIST.grantedTo(sender);
     }
 }
