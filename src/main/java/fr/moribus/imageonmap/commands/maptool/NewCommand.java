@@ -89,7 +89,7 @@ public class NewCommand extends IoMCommand {
         URL url;
         int width = 0;
         int height = 0;
-        final boolean confirm = hasFlag("confirm");
+        final boolean confirm = isConfirmed();
 
         ImageOnMap.getPlugin().getLogger().info("[NewCommand] Player " + player.getName() + " initiated map creation");
 
