@@ -38,6 +38,10 @@ economy:
   delete:
     refunded: "{cs}{0} を {1} 地図ブロック分返金しました。"
 
+  # 地図サイズ制限
+  max-size-exceeded: "{ce}地図サイズ（{0} ブロック）があなたの上限（{1} ブロック）を超えています！"
+  max-size-exceeded-unlimited: "{ce}地図サイズ（{0} ブロック）がサーバーの上限（{1} ブロック）を超えています！"
+
 # クォータコマンド
 quota:
   unlimited-quota: "{cs}地図の作成数は無制限です。現在の地図数: {0}"
@@ -46,3 +50,9 @@ quota:
   map-limit: "{ci}地図上限: {0}"
   remaining-maps: "{cs}残り作成可能数: {0}"
   usage-percentage: "{ci}使用率: {0}%"
+
+# 最大サイズコマンド
+maxsize:
+  unlimited-size: "{cs}無制限のサイズの地図を作成できます。"
+  size-limit: "{ci}最大地図サイズ: {0} ブロック"
+  size-info: "{ci}例: 10×10の地図 = 100 ブロック"

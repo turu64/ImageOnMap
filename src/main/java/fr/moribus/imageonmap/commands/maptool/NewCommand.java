@@ -191,6 +191,16 @@ public class NewCommand extends IoMCommand {
             return;
         }
 
+        // Check map size limit BEFORE quota and charging
+        int maxMapSize = MapManager.getPlayerMaxMapSize(player.getUniqueId());
+        if (maxMapSize > 0 && estimatedMapCount > maxMapSize) {
+            player.sendMessage(LocaleManager.getMessage("economy.max-size-exceeded",
+                estimatedMapCount, maxMapSize));
+            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Map size check failed for " + player.getName() +
+                ": requested=" + estimatedMapCount + ", limit=" + maxMapSize);
+            return;
+        }
+
         // Check map quota BEFORE charging
         try {
             MapManager.checkMapLimitForPlayer(player.getUniqueId(), estimatedMapCount);

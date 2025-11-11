@@ -222,6 +222,48 @@ public class PlayerMapStore implements ConfigurationSerializable {
         return PluginConfiguration.MAP_PLAYER_LIMIT.get();
     }
 
+    /**
+     * Gets the maximum map size (in blocks) for this player, checking permissions first, then falling back to config
+     * @return The maximum map size in blocks, or 0 for unlimited
+     */
+    public int getPlayerMaxMapSize() {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null) {
+            // Player is offline, use config default
+            return PluginConfiguration.MAX_MAP_SIZE.get();
+        }
+
+        // Check for bypass permission (unlimited)
+        if (player.hasPermission("imageonmap.bypassmaxsize")) {
+            return 0; // 0 = unlimited
+        }
+
+        // Check for specific max size permissions (e.g., imageonmap.maxsize.200)
+        int maxSize = -1;
+        for (PermissionAttachmentInfo permInfo : player.getEffectivePermissions()) {
+            String permission = permInfo.getPermission();
+            if (permission.startsWith("imageonmap.maxsize.") && permInfo.getValue()) {
+                String sizeStr = permission.substring("imageonmap.maxsize.".length());
+                try {
+                    int size = Integer.parseInt(sizeStr);
+                    if (size > maxSize) {
+                        maxSize = size;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore invalid size permissions
+                }
+            }
+        }
+
+        // If a specific size was found, use it
+        if (maxSize >= 0) {
+            return maxSize;
+        }
+
+        // Fall back to config default
+        return PluginConfiguration.MAX_MAP_SIZE.get();
+    }
+
     public UUID getUUID() {
         return playerUUID;
     }

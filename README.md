@@ -96,7 +96,16 @@ Displays the player's current map quota usage and remaining maps.
 - If the player has unlimited quota (via `imageonmap.mapquota.unlimited` or permission-based quotas), it will display "unlimited" instead.
 - Permission: `imageonmap.list` (same as explore/list commands)
 
-### `/maptool <new|list|get|delete|explore|update|give|rename|migrate|quota>`
+### `/maptool maxsize`
+
+Displays the player's maximum map size limit in blocks.
+
+- This command can only be used by a player.
+- Shows the maximum map size (width × height in blocks) the player can create.
+- If the player has unlimited size (via `imageonmap.bypassmaxsize` or permission-based limits), it will display "unlimited" instead.
+- Permission: `imageonmap.list` (same as explore/list commands)
+
+### `/maptool <new|list|get|delete|explore|update|give|rename|migrate|quota|maxsize>`
 
 Main command to manage the maps. The less used in everyday usage, too.
 
@@ -106,6 +115,7 @@ Main command to manage the maps. The less used in everyday usage, too.
 - `/maptool give` is an alias of `/givemap`.
 - `/maptool update` allow to update a specific map.
 - `/maptool quota` displays the player's current map quota usage.
+- `/maptool maxsize` displays the player's maximum map size limit.
 - `/maptool migrate` migrates the old maps when you upgrade from IoM <= 2.7 to IoM 3.0. You HAVE TO execute this command to retrieve all maps when you do such a migration.
 - the followings commands come with an extra permission `imageonmap.CMDNAMEother`:
   - `/maptool list|get|delete|explore|update`
@@ -118,7 +128,8 @@ Main command to manage the maps. The less used in everyday usage, too.
   - `imageonmap.explore` for `/maptool explore`;
   - `imageonmap.update` for `/maptool update`;
   - `imageonmap.give` for `/maptool give`;
-  - `imageonmap.list` for `/maptool quota`.
+  - `imageonmap.list` for `/maptool quota`;
+  - `imageonmap.list` for `/maptool maxsize`.
   
 
 ### About the permissions
@@ -163,6 +174,12 @@ collect-data: true
 # 0 means unlimited.
 map-global-limit: 0
 map-player-limit: 0
+
+
+# Maximum map size in blocks (width x height). Players need imageonmap.bypassmaxsize to bypass this limit.
+# For example, a 10x10 map = 100 blocks total. 0 means unlimited.
+# Permissions like imageonmap.maxsize.<number> can override this value per player.
+max-map-size: 100
 
 
 # Maximum size in pixels for an image to be. 0 is unlimited.
@@ -210,6 +227,41 @@ To enable economy features:
 3. Customize costs, refund settings, and locale as needed
 4. Optionally translate messages by copying `locale/message_en-US.yml` to other locales
 
+### Map Size Limit System
+
+ImageOnMap allows you to restrict the maximum map size (in blocks) that players can create:
+
+- **Default limit** set via `max-map-size` in config.yml (default: 100 blocks)
+- **Size calculation**: Width × Height (e.g., 10×10 map = 100 blocks)
+- **Per-player limits** via permissions:
+  - `imageonmap.bypassmaxsize` - Unlimited map size (default: OP)
+  - `imageonmap.maxsize.<number>` - Specific limit (e.g., `imageonmap.maxsize.200` allows up to 200 blocks)
+  - If multiple maxsize permissions are present, the highest value is used
+- **Check limit**: Use `/maptool maxsize` to see your current limit
+
+Example permission setup:
+```yaml
+# LuckPerms example
+luckperms:
+  user:
+    regular_player:
+      permissions:
+        - imageonmap.new: true
+        # Uses default config value (100 blocks)
+
+    vip_player:
+      permissions:
+        - imageonmap.new: true
+        - imageonmap.maxsize.200: true
+        # Can create maps up to 200 blocks
+
+    admin:
+      permissions:
+        - imageonmap.new: true
+        - imageonmap.bypassmaxsize: true
+        # Unlimited map size
+```
+
 ## Changelog
 
 ### 5.1.0 — Economy & Minecraft 1.21.4 Update
@@ -226,7 +278,17 @@ This version adds Vault economy integration and updates to Minecraft 1.21.4 comp
   - Create `locale/message_<locale>.yml` files (e.g., `message_ja-JP.yml`)
   - Includes full Japanese translation (`message_ja-JP.yml`)
   - Supports color codes and placeholders like existing i18n system
+- **Map Size Limit System** — Restrict maximum map size (width × height) per player
+  - Default limit configurable via `max-map-size` in config.yml (default: 100 blocks)
+  - Per-player limits via `imageonmap.maxsize.<number>` permissions
+  - Bypass permission for unlimited size (`imageonmap.bypassmaxsize`)
+  - Check current limit with `/maptool maxsize` command
+  - Prevents money loss by checking size before charging
 - **Map Size Display** — Confirmation shows dimensions: "4 blocks (2×2)"
+- **Per-Player Map Quotas** — Override map-player-limit via permissions
+  - `imageonmap.mapquota.<number>` for specific limits
+  - `imageonmap.mapquota.unlimited` for unlimited maps
+  - Check current quota with `/maptool quota` command
 - **Config Migration** — Automatically adds new config options on plugin update
 
 **Technical Changes:**
@@ -238,8 +300,15 @@ This version adds Vault economy integration and updates to Minecraft 1.21.4 comp
 
 **Configuration:**
 - New `economy` section in config.yml with 5 settings
-- New permission: `imageonmap.bypasscost` (default: op)
+- New `max-map-size` config option (default: 100 blocks)
+- New permissions:
+  - `imageonmap.bypasscost` (default: op) - Free map creation
+  - `imageonmap.bypassmaxsize` (default: op) - Unlimited map size
+  - `imageonmap.maxsize.<number>` (default: false) - Custom size limit
+  - `imageonmap.mapquota.<number>` (default: false) - Custom map quota
+  - `imageonmap.mapquota.unlimited` (default: op) - Unlimited map quota
 - New locale files in `locale/` directory
+- New commands: `/maptool quota` and `/maptool maxsize`
 
 **Requirements:**
 - Minecraft 1.21.4+ (Paper server)

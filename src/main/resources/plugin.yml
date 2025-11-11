@@ -37,6 +37,7 @@ permissions:
       imageonmap.deleteother: false
       imageonmap.bypasssize: false
       imageonmap.bypasscost: false
+      imageonmap.bypassmaxsize: false
       imageonmap.give: false
       imageonmap.update: true
       imageonmap.updateother: false
@@ -108,6 +109,14 @@ permissions:
   imageonmap.bypasscost:
     description: "Allows you to create and update maps without paying the economy cost."
     default: op
+
+  imageonmap.bypassmaxsize:
+    description: "Allows you to create maps of unlimited size, bypassing the max-map-size config."
+    default: op
+
+  imageonmap.maxsize.<number>:
+    description: "Sets a custom maximum map size for the player (e.g., imageonmap.maxsize.200 allows up to 200 blocks). If multiple maxsize permissions are present, the highest value is used."
+    default: false
 
   imageonmap.mapquota.unlimited:
     description: "Allows unlimited map creation, bypassing the map-player-limit config."

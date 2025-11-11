@@ -177,6 +177,15 @@ public abstract class MapManager {
         getPlayerMapStore(playerUUID).checkMapLimit(newMapsCount);
     }
 
+    /**
+     * Gets the maximum map size (in blocks) for the given player.
+     * @param playerUUID The player's UUID
+     * @return The maximum map size in blocks, or 0 for unlimited
+     */
+    public static int getPlayerMaxMapSize(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getPlayerMaxMapSize();
+    }
+
     public static ImageMap getMap(UUID playerUUID, String mapId) {
         return getPlayerMapStore(playerUUID).getMap(mapId);
     }

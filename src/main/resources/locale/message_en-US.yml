@@ -38,6 +38,10 @@ economy:
   delete:
     refunded: "{cs}Refunded {0} for {1} map blocks."
 
+  # Map size limit
+  max-size-exceeded: "{ce}Map size ({0} blocks) exceeds your limit of {1} blocks!"
+  max-size-exceeded-unlimited: "{ce}Map size ({0} blocks) exceeds the server limit of {1} blocks!"
+
 # Quota command
 quota:
   unlimited-quota: "{cs}You have unlimited map quota. Current maps: {0}"
@@ -46,3 +50,9 @@ quota:
   map-limit: "{ci}Map limit: {0}"
   remaining-maps: "{cs}Remaining maps: {0}"
   usage-percentage: "{ci}Usage: {0}%"
+
+# Max Size command
+maxsize:
+  unlimited-size: "{cs}You can create maps of unlimited size."
+  size-limit: "{ci}Maximum map size: {0} blocks"
+  size-info: "{ci}For example, a 10×10 map = 100 blocks"

@@ -77,6 +77,8 @@ public final class PluginConfiguration {
 
     public static final Supplier<Integer> LIMIT_SIZE_Y = () -> PLUGIN.getConfig().getInt("limit-map-size-y");
 
+    public static final Supplier<Integer> MAX_MAP_SIZE = () -> PLUGIN.getConfig().getInt("max-map-size", 100);
+
     public static final Supplier<Boolean> ECONOMY_ENABLED = () -> PLUGIN.getConfig().getBoolean("economy.enabled", false);
 
     public static final Supplier<Double> ECONOMY_COST_PER_MAP = () -> PLUGIN.getConfig().getDouble("economy.cost-per-map", 1000.0);
