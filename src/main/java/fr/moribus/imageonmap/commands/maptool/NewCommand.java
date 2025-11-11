@@ -115,16 +115,19 @@ public class NewCommand extends IoMCommand {
             scaling = resizeMode();
         }
 
-        // Calculate estimated map count for confirmation/charging
-        int estimatedMapCount = calculateEstimatedMapCount(url, scaling, width, height);
-        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Estimated map count: " + estimatedMapCount);
+        // Calculate estimated map size for confirmation/charging
+        MapSize mapSize = calculateMapSize(url, scaling, width, height);
+        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Estimated map size: " +
+            (mapSize != null ? mapSize.width + "×" + mapSize.height + " (" + mapSize.total + " blocks)" : "null"));
 
         // Check if the map size calculation failed
-        if (estimatedMapCount == 0) {
+        if (mapSize == null || mapSize.total == 0) {
             player.sendMessage(LocaleManager.getMessage("economy.invalid-url"));
             ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Failed to calculate map size for URL: " + url);
             return;
         }
+
+        int estimatedMapCount = mapSize.total;
 
         // Show confirmation for players without bypass
         if (!Permissions.BYPASS_COST.grantedTo(player) && !confirm) {
@@ -156,7 +159,7 @@ public class NewCommand extends IoMCommand {
 
             player.sendMessage(Component.text()
                 .append(Component.text(LocaleManager.getMessage("economy.map-size")).color(NamedTextColor.AQUA))
-                .append(Component.text(LocaleManager.getMessage("economy.blocks", estimatedMapCount)).color(NamedTextColor.WHITE))
+                .append(Component.text(LocaleManager.getMessage("economy.blocks", estimatedMapCount, mapSize.width, mapSize.height)).color(NamedTextColor.WHITE))
                 .build());
 
             if (VaultEconomyManager.isEnabled()) {
@@ -274,19 +277,34 @@ public class NewCommand extends IoMCommand {
     }
 
     /**
-     * Calculate the estimated number of map blocks needed for an image
+     * Holds map size information
+     */
+    private static class MapSize {
+        final int width;
+        final int height;
+        final int total;
+
+        MapSize(int width, int height) {
+            this.width = width;
+            this.height = height;
+            this.total = width * height;
+        }
+    }
+
+    /**
+     * Calculate the estimated map size needed for an image
      *
      * @param url     The image URL
      * @param scaling The scaling type
      * @param width   The width in maps (0 = auto)
      * @param height  The height in maps (0 = auto)
-     * @return The estimated number of map blocks, or 0 if cannot calculate
+     * @return The MapSize with width, height, and total, or null if cannot calculate
      */
-    private int calculateEstimatedMapCount(URL url, ImageUtils.ScalingType scaling, int width, int height) {
+    private MapSize calculateMapSize(URL url, ImageUtils.ScalingType scaling, int width, int height) {
         try {
             // If width and height are specified, use them directly
             if (width > 0 && height > 0) {
-                return width * height;
+                return new MapSize(width, height);
             }
 
             // Otherwise, download and check the image
@@ -296,7 +314,7 @@ public class NewCommand extends IoMCommand {
             }
 
             if (image == null) {
-                return 0;
+                return null;
             }
 
             int imageWidth = image.getWidth();
@@ -305,18 +323,32 @@ public class NewCommand extends IoMCommand {
 
             // If resize mode is used and dimensions are 0, it becomes a single map
             if (scaling != ImageUtils.ScalingType.NONE && height <= 1 && width <= 1) {
-                return 1;
+                return new MapSize(1, 1);
             }
 
             // Calculate the number of 128x128 blocks needed
             int columns = (int) Math.ceil((double) imageWidth / 128.0);
             int rows = (int) Math.ceil((double) imageHeight / 128.0);
 
-            return columns * rows;
+            return new MapSize(columns, rows);
         } catch (IOException e) {
-            ImageOnMap.getPlugin().getLogger().warning("Failed to calculate map count for " + url + ": " + e.getMessage());
-            return 0;
+            ImageOnMap.getPlugin().getLogger().warning("Failed to calculate map size for " + url + ": " + e.getMessage());
+            return null;
         }
+    }
+
+    /**
+     * Calculate the estimated number of map blocks needed for an image
+     *
+     * @param url     The image URL
+     * @param scaling The scaling type
+     * @param width   The width in maps (0 = auto)
+     * @param height  The height in maps (0 = auto)
+     * @return The estimated number of map blocks, or 0 if cannot calculate
+     */
+    private int calculateEstimatedMapCount(URL url, ImageUtils.ScalingType scaling, int width, int height) {
+        MapSize size = calculateMapSize(url, scaling, width, height);
+        return size != null ? size.total : 0;
     }
 
     @Override

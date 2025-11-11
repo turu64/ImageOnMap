@@ -1,0 +1,36 @@
+# ImageOnMap 経済メッセージ（日本語）
+# このファイルはユーザーが編集可能です
+# config.ymlの 'economy.locale' で 'ja-JP' を設定してください
+
+economy:
+  # エラーメッセージ
+  invalid-url: "{ce}無効な画像URLまたは地図サイズを計算できません。"
+  insufficient-funds: "{ce}この地図を作成するのに十分なお金がありません！"
+  insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
+  charge-failed: "{ce}アカウントからの請求に失敗しました。地図作成をキャンセルしました。"
+  inventory-full: "{ce}インベントリがいっぱいです！ '/maptool getremaining' で地図を入手してください。"
+
+  # 確認ダイアログ
+  confirmation-title: "地図作成の確認"
+  map-size: "地図サイズ: "
+  blocks: "{0} ブロック ({1}×{2})"
+  cost: "コスト: "
+  balance: "所持金: "
+  click-to-confirm: "確認するにはクリック: "
+  confirm-button: "[確認]"
+  confirm-hover: "クリックして地図を作成"
+
+  # 成功メッセージ
+  charged: "{cs}{0} を {1} 地図ブロック分請求しました。"
+  created: "{cs}地図の作成に成功しました！"
+
+  # 更新コマンド
+  update:
+    insufficient-funds: "{ce}この地図を更新するのに十分なお金がありません！"
+    insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
+    charge-failed: "{ce}アカウントからの請求に失敗しました。地図更新をキャンセルしました。"
+    charged: "{cs}{0} を {1} 地図ブロック分の更新として請求しました。"
+
+  # 削除コマンド
+  delete:
+    refunded: "{cs}{0} を {1} 地図ブロック分返金しました。"

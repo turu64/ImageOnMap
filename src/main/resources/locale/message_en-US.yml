@@ -13,7 +13,7 @@ economy:
   # Confirmation dialog
   confirmation-title: "Map Creation Confirmation"
   map-size: "Map Size: "
-  blocks: "{0} blocks"
+  blocks: "{0} blocks ({1}×{2})"
   cost: "Cost: "
   balance: "Your Balance: "
   click-to-confirm: "Click to confirm: "
