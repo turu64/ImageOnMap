@@ -126,7 +126,7 @@ public class NewCommand extends IoMCommand {
 
             // Build command for confirmation
             String confirmCommand = Commands.getCommandInfo(NewCommand.class).build(
-                "\"" + args[0] + "\"",
+                args[0],
                 args.length >= 2 ? args[1] : "",
                 args.length >= 3 ? args[2] : "",
                 args.length >= 4 ? args[3] : "",
@@ -214,45 +214,51 @@ public class NewCommand extends IoMCommand {
             ImageRendererExecutor.render(url, scaling, player.getUniqueId(), width, height)
                     .exceptionallyAsync((exception) -> {
                         ImageOnMap.getPlugin().getLogger().log(Level.SEVERE, "[NewCommand] Rendering failed for " + player.getName(), exception);
-                        player.sendMessage(I.t("{ce}Map rendering failed: {0}", exception.getMessage()));
+                        // Schedule message on main thread
+                        org.bukkit.Bukkit.getScheduler().runTask(ImageOnMap.getPlugin(), () -> {
+                            player.sendMessage(I.t("{ce}Map rendering failed: {0}", exception.getMessage()));
+                        });
                         return null;
                     })
                     .thenAccept(result -> {
                         ImageOnMap.getPlugin().getLogger().info("[NewCommand] Rendering completed for " + player.getName() + ", result=" + (result != null ? result.getId() : "null"));
 
-                        ActionBar.removeMessage(player);
+                        // Execute on main thread for Bukkit API calls
+                        org.bukkit.Bukkit.getScheduler().runTask(ImageOnMap.getPlugin(), () -> {
+                            ActionBar.removeMessage(player);
 
-                        if (result == null) {
-                            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Result is null for " + player.getName());
-                            player.sendMessage(I.t("{ce}Map rendering failed: result is null"));
-                            return;
-                        }
+                            if (result == null) {
+                                ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Result is null for " + player.getName());
+                                player.sendMessage(I.t("{ce}Map rendering failed: result is null"));
+                                return;
+                            }
 
-                        player.sendActionBar(Component.text()
-                                .color(NamedTextColor.DARK_GREEN)
-                                .append(Component.text(I.t("Rendering finished!")))
-                                .build()
-                        );
+                            player.sendActionBar(Component.text()
+                                    .color(NamedTextColor.DARK_GREEN)
+                                    .append(Component.text(I.t("Rendering finished!")))
+                                    .build()
+                            );
 
-                        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Attempting to give map to " + player.getName());
-                        // NOTE: give() returns true if inventory is FULL, false if successful
-                        boolean inventoryFull = result.give(player);
-                        ImageOnMap.getPlugin().getLogger().info("[NewCommand] result.give() returned: " + inventoryFull + " (inventory full=" + inventoryFull + ")");
+                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Attempting to give map to " + player.getName());
+                            // NOTE: give() returns true if inventory is FULL, false if successful
+                            boolean inventoryFull = result.give(player);
+                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] result.give() returned: " + inventoryFull + " (inventory full=" + inventoryFull + ")");
 
-                        if (!inventoryFull) {
-                            // Successfully gave the map
-                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully gave map to " + player.getName());
-                            player.sendMessage(I.t("{cs}Map created successfully!"));
-                        } else if (inventoryFull && (result instanceof PosterMap && !((PosterMap) result).hasColumnData())) {
-                            // Poster map was too big, parts need to be retrieved
-                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Poster map too big for inventory: " + player.getName());
-                            info(I.t("The rendered map was too big to fit in your inventory."));
-                            info(I.t("Use '/maptool getremaining' to get the remaining maps."));
-                        } else {
-                            // Inventory was full
-                            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Inventory full for " + player.getName());
-                            player.sendMessage(I.t("{ce}Your inventory is full! Use '/maptool getremaining' to get your map."));
-                        }
+                            if (!inventoryFull) {
+                                // Successfully gave the map
+                                ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully gave map to " + player.getName());
+                                player.sendMessage(I.t("{cs}Map created successfully!"));
+                            } else if (inventoryFull && (result instanceof PosterMap && !((PosterMap) result).hasColumnData())) {
+                                // Poster map was too big, parts need to be retrieved
+                                ImageOnMap.getPlugin().getLogger().info("[NewCommand] Poster map too big for inventory: " + player.getName());
+                                info(I.t("The rendered map was too big to fit in your inventory."));
+                                info(I.t("Use '/maptool getremaining' to get the remaining maps."));
+                            } else {
+                                // Inventory was full
+                                ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Inventory full for " + player.getName());
+                                player.sendMessage(I.t("{ce}Your inventory is full! Use '/maptool getremaining' to get your map."));
+                            }
+                        });
                     });
         } finally {
             ActionBar.removeMessage(player);

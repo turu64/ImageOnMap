@@ -135,7 +135,8 @@ public abstract class SplatterMapManager {
 
         meta.getPersistentDataContainer().set(SPLATTER_KEY, PersistentDataType.BYTE, (byte) 1);
 
-        meta.addEnchant(Enchantment.DURABILITY, 1, false);
+        // Use UNBREAKING instead of DURABILITY (changed in 1.20.5+)
+        meta.addEnchant(Enchantment.UNBREAKING, 1, false);
 
         itemStack.setItemMeta(meta);
 
