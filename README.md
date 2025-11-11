@@ -320,6 +320,18 @@ This version adds Vault economy integration and updates to Minecraft 1.21.4 comp
 - Vault plugin (optional, for economy features)
 - Economy plugin (e.g., EssentialsX, if using economy)
 
+**Bug Fixes (Post-5.1.0):**
+- **Fixed quota counting** — Quota system now correctly counts the number of maps instead of map blocks
+  - Previously: Creating a 2×2 splatter map counted as 4 towards quota
+  - Now: Creating any size map counts as 1 towards quota
+  - This matches user expectations and makes quota limits more predictable
+- **Fixed quota check in renderPoster** — Rendering process now checks for 1 map instead of map block count
+  - Prevents "quota exceeded" errors during rendering after pre-check passed
+- **Added automatic refund on failure** — Players are now automatically refunded if map creation or update fails
+  - Refunds occur for any rendering errors, quota failures, or technical issues
+  - Prevents money loss due to technical problems
+  - Added locale messages: `render-failed-refunded`, `render-failed-no-refund`, `update-failed-refunded`, `update-failed-no-refund`
+
 ### 5.0.1 — Hard Forked by Okocraft Team
 
 This version removed NMS dependence code and old stuff. And, now only supports paper server.
