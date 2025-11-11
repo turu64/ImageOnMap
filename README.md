@@ -83,10 +83,20 @@ Examples:
 Update a specified map (the field PlayerName is optional, by default it will look in the command sender store) 
 - Can be used by a command block and by server console, if so the field Playername becomes mandatory
 Examples:
-    - `/maptool update "A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg ` Will update the map named "A very cool map name" 
+    - `/maptool update "A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg ` Will update the map named "A very cool map name"
     - `/maptool update AmauryPi:"A very cool map name" https://www.numerama.com/wp-content/uploads/2020/09/never-gonna-give-you-up-clip-1024x581.jpg covered` Will update AmauryPi's map and set it to covered
 - Permissions: `imageonmap.update`, `imageonmap.updateother`
-### `/maptool <new|list|get|delete|explore|update|give|rename|migrate>`
+
+### `/maptool quota`
+
+Displays the player's current map quota usage and remaining maps.
+
+- This command can only be used by a player.
+- Shows the current number of maps, map limit, remaining maps, and usage percentage.
+- If the player has unlimited quota (via `imageonmap.mapquota.unlimited` or permission-based quotas), it will display "unlimited" instead.
+- Permission: `imageonmap.list` (same as explore/list commands)
+
+### `/maptool <new|list|get|delete|explore|update|give|rename|migrate|quota>`
 
 Main command to manage the maps. The less used in everyday usage, too.
 
@@ -95,6 +105,7 @@ Main command to manage the maps. The less used in everyday usage, too.
 - `/maptool explore` is an alias of `/maps`.
 - `/maptool give` is an alias of `/givemap`.
 - `/maptool update` allow to update a specific map.
+- `/maptool quota` displays the player's current map quota usage.
 - `/maptool migrate` migrates the old maps when you upgrade from IoM <= 2.7 to IoM 3.0. You HAVE TO execute this command to retrieve all maps when you do such a migration.
 - the followings commands come with an extra permission `imageonmap.CMDNAMEother`:
   - `/maptool list|get|delete|explore|update`
@@ -106,7 +117,8 @@ Main command to manage the maps. The less used in everyday usage, too.
   - `imageonmap.administrative` for `/maptool migrate`.
   - `imageonmap.explore` for `/maptool explore`;
   - `imageonmap.update` for `/maptool update`;
-  - `imageonmap.give` for `/maptool give`.
+  - `imageonmap.give` for `/maptool give`;
+  - `imageonmap.list` for `/maptool quota`.
   
 
 ### About the permissions

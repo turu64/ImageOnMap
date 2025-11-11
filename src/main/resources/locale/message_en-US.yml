@@ -37,3 +37,12 @@ economy:
   # Delete command
   delete:
     refunded: "{cs}Refunded {0} for {1} map blocks."
+
+# Quota command
+quota:
+  unlimited-quota: "{cs}You have unlimited map quota. Current maps: {0}"
+  quota-header: "{ci}========== Map Quota =========="
+  current-maps: "{ci}Current maps: {0}"
+  map-limit: "{ci}Map limit: {0}"
+  remaining-maps: "{cs}Remaining maps: {0}"
+  usage-percentage: "{ci}Usage: {0}%"

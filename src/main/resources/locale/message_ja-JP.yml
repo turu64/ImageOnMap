@@ -37,3 +37,12 @@ economy:
   # 削除コマンド
   delete:
     refunded: "{cs}{0} を {1} 地図ブロック分返金しました。"
+
+# クォータコマンド
+quota:
+  unlimited-quota: "{cs}地図の作成数は無制限です。現在の地図数: {0}"
+  quota-header: "{ci}========== 地図クォータ =========="
+  current-maps: "{ci}現在の地図数: {0}"
+  map-limit: "{ci}地図上限: {0}"
+  remaining-maps: "{cs}残り作成可能数: {0}"
+  usage-percentage: "{ci}使用率: {0}%"
