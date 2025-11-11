@@ -14,6 +14,7 @@ If you are find any bugs, please feel free to report bugs to [issues](https://gi
 ### Limitations
 
 - Only works on [Paper server](https://github.com/PaperMC/Paper) or its forked server.
+- **Minecraft 1.21.4+** required (as of version 5.1.0).
 - Java 17 or later required.
 - Migration feature from older than version v3 has been removed.
 
@@ -31,6 +32,7 @@ ImageOnMap allows you to load a picture from the Internet to a Minecraft map.
   walls! As example a 1024x1024 picture will be cut in 16 maps.
 - Your image will be centered.
 - You can put your map in an item frame, or in multiple ones at once—ImageOnMap handles the placement for you!
+- **Economy integration with Vault** (optional) — charge players based on map size with confirmation dialog, refunds on deletion, and bypass permissions for staff.
 
 This plugin is a free software licenced under the [CeCILL-B licence](https://cecill.info/licences/Licence_CeCILL-B_V1-en.html)
 (BSD-style in French law).
@@ -109,10 +111,14 @@ Main command to manage the maps. The less used in everyday usage, too.
 
 ### About the permissions
 
-All permissions are by default granted to everyone, with the exception of `imageonmap.administrative`, `imageonmap.give` and the ones that used the suffix `other` . We believe that in most cases, servers administrators want to give the availability to create images on maps to every player.  
+All permissions are by default granted to everyone, with the exception of `imageonmap.administrative`, `imageonmap.give` and the ones that used the suffix `other` . We believe that in most cases, servers administrators want to give the availability to create images on maps to every player.
 Negate a permission using a plugin manager to remove it, if you want to restrict this possibility to a set of users.
 
 You can grant `imageonmap.*` to users, as this permission is a shortcut for all _user_ permissions (excluding `imageonmap.administrative` , `imageonmap.give` and every permission with the prefix `other` that are intended for moderation usage).
+
+#### Economy-related permissions
+
+- `imageonmap.bypasscost` — Allows players to create and update maps without paying the economy cost. Default: `op`
 
 
 ## Configuration
@@ -142,9 +148,88 @@ limit-map-size-y: 0
 
 # Should the full image be saved when a map is rendered?
 save-full-image: false
+
+
+# Economy settings (requires Vault plugin)
+economy:
+  # Enable economy integration
+  enabled: false
+
+  # Cost per map block (e.g., 2x2 map = 4 blocks = 4000 with cost-per-map: 1000)
+  cost-per-map: 1000.0
+
+  # Whether to refund players when they delete a map
+  refund-on-delete: true
+
+  # Percentage of the original cost to refund (0.0 to 1.0)
+  # 0.5 = 50% refund, 1.0 = 100% refund
+  refund-percentage: 0.5
+
+  # Locale for economy messages (e.g., en-US, ja-JP)
+  # Users can copy locale/message_en-US.yml to message_ja-JP.yml and translate
+  locale: en-US
 ```
 
+### Economy System (Vault Integration)
+
+ImageOnMap supports optional economy integration via Vault. When enabled:
+
+- **Players are charged** based on map size (e.g., 2×2 map = 4 blocks = 4000 currency with default settings)
+- **Confirmation dialog** shows map size (with dimensions), cost, and player balance before creation
+- **Automatic refunds** when players delete maps (configurable percentage)
+- **Bypass permission** (`imageonmap.bypasscost`) for staff/OPs to create maps for free
+- **User-editable messages** via locale files (`locale/message_en-US.yml`, `locale/message_ja-JP.yml`, etc.)
+
+To enable economy features:
+1. Install [Vault](https://www.spigotmc.org/resources/vault.34315/) and an economy plugin (e.g., EssentialsX)
+2. Set `economy.enabled: true` in config.yml
+3. Customize costs, refund settings, and locale as needed
+4. Optionally translate messages by copying `locale/message_en-US.yml` to other locales
+
 ## Changelog
+
+### 5.1.0 — Economy & Minecraft 1.21.4 Update
+
+This version adds Vault economy integration and updates to Minecraft 1.21.4 compatibility.
+
+**New Features:**
+- **Vault Economy Integration** — Optional economy system with configurable costs based on map size
+  - Charge players per map block (e.g., 2×2 map = 4 blocks)
+  - Interactive confirmation dialog showing map size (with dimensions), cost, and balance
+  - Automatic refunds on map deletion with configurable percentage
+  - Bypass permission for staff/OPs (`imageonmap.bypasscost`)
+- **User-Editable Locale System** — Economy messages can be translated via YAML files
+  - Create `locale/message_<locale>.yml` files (e.g., `message_ja-JP.yml`)
+  - Includes full Japanese translation (`message_ja-JP.yml`)
+  - Supports color codes and placeholders like existing i18n system
+- **Map Size Display** — Confirmation shows dimensions: "4 blocks (2×2)"
+- **Config Migration** — Automatically adds new config options on plugin update
+
+**Technical Changes:**
+- Updated Paper API from 1.19.3 to 1.21.4
+- Fixed `Enchantment.DURABILITY` → `Enchantment.UNBREAKING` for 1.21.4
+- Added `LocaleManager` class for YAML-based translations
+- Added `VaultEconomyManager` class for economy operations
+- Ensured all Bukkit API calls run on main thread
+
+**Configuration:**
+- New `economy` section in config.yml with 5 settings
+- New permission: `imageonmap.bypasscost` (default: op)
+- New locale files in `locale/` directory
+
+**Requirements:**
+- Minecraft 1.21.4+ (Paper server)
+- Vault plugin (optional, for economy features)
+- Economy plugin (e.g., EssentialsX, if using economy)
+
+### 5.0.1 — Hard Forked by Okocraft Team
+
+This version removed NMS dependence code and old stuff. And, now only supports paper server.
+
+- Removed QuartzLib dependency and copied it in src directly to maintain easily.
+- Removed MANY redundant code and nms code in copied QuartzLib.
+- Removed migration feature from v3
+- Fixed bug that maps already placed in world do not render image.
 
 ### 3.0 — The From-Scratch Update
 
