@@ -50,12 +50,7 @@ public class QuotaCommand extends IoMCommand {
 
     @Override
     protected void run() throws CommandException {
-        if (!(sender instanceof Player)) {
-            throwNotProvidedSender();
-            return;
-        }
-
-        Player player = (Player) sender;
+        Player player = playerSender();
 
         // Get current map count
         int currentMaps = MapManager.getMapPartCount(player.getUniqueId());
