@@ -39,6 +39,7 @@ package fr.moribus.imageonmap.commands.maptool;
 import fr.moribus.imageonmap.ImageOnMap;
 import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
+import fr.moribus.imageonmap.commands.Commands;
 import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.i18n.I;
 import fr.moribus.imageonmap.image.ImageRendererExecutor;
@@ -48,20 +49,25 @@ import fr.moribus.imageonmap.map.MapManager;
 import fr.moribus.imageonmap.map.PosterMap;
 import fr.moribus.imageonmap.commands.CommandException;
 import fr.moribus.imageonmap.commands.CommandInfo;
+import fr.moribus.imageonmap.commands.WithFlags;
 import fr.zcraft.quartzlib.tools.text.ActionBar;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name = "new", usageParameters = "<URL> [resize]")
+@CommandInfo(name = "new", usageParameters = "<URL> [resize] [--confirm]")
+@WithFlags({"confirm"})
 public class NewCommand extends IoMCommand {
 
     private ImageUtils.ScalingType resizeMode() throws CommandException {
@@ -83,6 +89,9 @@ public class NewCommand extends IoMCommand {
         URL url;
         int width = 0;
         int height = 0;
+        final boolean confirm = hasFlag("confirm");
+
+        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Player " + player.getName() + " initiated map creation");
 
         if (args.length < 1) {
             throwInvalidArgument(I.t("You must give an URL to take the image from."));
@@ -90,6 +99,7 @@ public class NewCommand extends IoMCommand {
 
         try {
             url = new URL(args[0]);
+            ImageOnMap.getPlugin().getLogger().info("[NewCommand] URL parsed: " + url);
         } catch (MalformedURLException ex) {
             throwInvalidArgument(I.t("Invalid URL."));
             return;
@@ -99,55 +109,149 @@ public class NewCommand extends IoMCommand {
             if (args.length >= 4) {
                 width = Integer.parseInt(args[2]);
                 height = Integer.parseInt(args[3]);
+                ImageOnMap.getPlugin().getLogger().info("[NewCommand] Custom size specified: " + width + "x" + height);
             }
             scaling = resizeMode();
         }
 
+        // Calculate estimated map count for confirmation/charging
+        int estimatedMapCount = calculateEstimatedMapCount(url, scaling, width, height);
+        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Estimated map count: " + estimatedMapCount);
+
+        // Show confirmation for players without bypass
+        if (!Permissions.BYPASS_COST.grantedTo(player) && !confirm) {
+            double cost = VaultEconomyManager.isEnabled()
+                ? VaultEconomyManager.calculateMapCost(estimatedMapCount)
+                : 0;
+
+            // Build command for confirmation
+            String confirmCommand = Commands.getCommandInfo(NewCommand.class).build(
+                "\"" + args[0] + "\"",
+                args.length >= 2 ? args[1] : "",
+                args.length >= 3 ? args[2] : "",
+                args.length >= 4 ? args[3] : "",
+                "--confirm"
+            ).trim().replaceAll("\\s+", " ");
+
+            // Send confirmation message
+            player.sendMessage(Component.text()
+                .append(Component.text("════════════════════════════════════").color(NamedTextColor.GOLD))
+                .build());
+
+            player.sendMessage(Component.text()
+                .append(Component.text(I.t("Map Creation Confirmation")).color(NamedTextColor.YELLOW))
+                .build());
+
+            player.sendMessage(Component.text()
+                .append(Component.text("════════════════════════════════════").color(NamedTextColor.GOLD))
+                .build());
+
+            player.sendMessage(Component.text()
+                .append(Component.text(I.t("Map Size: ")).color(NamedTextColor.AQUA))
+                .append(Component.text(estimatedMapCount + " blocks").color(NamedTextColor.WHITE))
+                .build());
+
+            if (VaultEconomyManager.isEnabled()) {
+                player.sendMessage(Component.text()
+                    .append(Component.text(I.t("Cost: ")).color(NamedTextColor.AQUA))
+                    .append(Component.text(VaultEconomyManager.formatCurrency(cost)).color(NamedTextColor.GOLD))
+                    .build());
+
+                player.sendMessage(Component.text()
+                    .append(Component.text(I.t("Your Balance: ")).color(NamedTextColor.AQUA))
+                    .append(Component.text(VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(player))).color(NamedTextColor.WHITE))
+                    .build());
+            }
+
+            player.sendMessage(Component.text()
+                .append(Component.text("════════════════════════════════════").color(NamedTextColor.GOLD))
+                .build());
+
+            player.sendMessage(Component.text()
+                .append(Component.text(I.t("Click to confirm: ")).color(NamedTextColor.YELLOW))
+                .append(Component.text("[CONFIRM]")
+                    .color(NamedTextColor.GREEN)
+                    .hoverEvent(HoverEvent.showText(Component.text(I.t("Click to create the map"))))
+                    .clickEvent(ClickEvent.runCommand(confirmCommand)))
+                .build());
+
+            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Confirmation message sent to " + player.getName());
+            return;
+        }
+
         // Economy check and charge
         if (VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(player)) {
-            int estimatedMapCount = calculateEstimatedMapCount(url, scaling, width, height);
             if (estimatedMapCount > 0) {
                 double cost = VaultEconomyManager.calculateMapCost(estimatedMapCount);
+                ImageOnMap.getPlugin().getLogger().info("[NewCommand] Checking balance for " + player.getName() + ": cost=" + cost + ", balance=" + VaultEconomyManager.getBalance(player));
 
                 if (!VaultEconomyManager.hasEnoughMoney(player, estimatedMapCount)) {
                     player.sendMessage(I.t("{ce}You don't have enough money to create this map!"));
                     player.sendMessage(I.t("{ce}Cost: {0}, Your balance: {1}",
                         VaultEconomyManager.formatCurrency(cost),
                         VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(player))));
+                    ImageOnMap.getPlugin().getLogger().warning("[NewCommand] " + player.getName() + " has insufficient funds");
                     return;
                 }
 
                 if (!VaultEconomyManager.chargePlayer(player, estimatedMapCount)) {
                     player.sendMessage(I.t("{ce}Failed to charge your account. Map creation cancelled."));
+                    ImageOnMap.getPlugin().getLogger().severe("[NewCommand] Failed to charge " + player.getName());
                     return;
                 }
 
                 player.sendMessage(I.t("{cs}Charged {0} for {1} map blocks.",
                     VaultEconomyManager.formatCurrency(cost), estimatedMapCount));
+                ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully charged " + player.getName() + " " + cost);
             }
+        } else if (Permissions.BYPASS_COST.grantedTo(player)) {
+            ImageOnMap.getPlugin().getLogger().info("[NewCommand] " + player.getName() + " has bypass cost permission");
         }
 
         try {
+            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Starting render for " + player.getName());
             ActionBar.sendPermanentMessage(player, ChatColor.DARK_GREEN + I.t("Rendering..."));
             ImageRendererExecutor.render(url, scaling, player.getUniqueId(), width, height)
                     .exceptionallyAsync((exception) -> {
+                        ImageOnMap.getPlugin().getLogger().log(Level.SEVERE, "[NewCommand] Rendering failed for " + player.getName(), exception);
                         player.sendMessage(I.t("{ce}Map rendering failed: {0}", exception.getMessage()));
-                        ImageOnMap.getPlugin().getLogger().warning("Rendering from " + player.getName() + " failed: "
-                                + exception.getClass().getCanonicalName() + ": " + exception.getMessage());
                         return null;
                     })
                     .thenAccept(result -> {
+                        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Rendering completed for " + player.getName() + ", result=" + (result != null ? result.getId() : "null"));
+
                         ActionBar.removeMessage(player);
+
+                        if (result == null) {
+                            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Result is null for " + player.getName());
+                            player.sendMessage(I.t("{ce}Map rendering failed: result is null"));
+                            return;
+                        }
+
                         player.sendActionBar(Component.text()
                                 .color(NamedTextColor.DARK_GREEN)
                                 .append(Component.text(I.t("Rendering finished!")))
                                 .build()
                         );
 
-                        if (result.give(player)
-                                && (result instanceof PosterMap && !((PosterMap) result).hasColumnData())) {
+                        ImageOnMap.getPlugin().getLogger().info("[NewCommand] Attempting to give map to " + player.getName());
+                        // NOTE: give() returns true if inventory is FULL, false if successful
+                        boolean inventoryFull = result.give(player);
+                        ImageOnMap.getPlugin().getLogger().info("[NewCommand] result.give() returned: " + inventoryFull + " (inventory full=" + inventoryFull + ")");
+
+                        if (!inventoryFull) {
+                            // Successfully gave the map
+                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully gave map to " + player.getName());
+                            player.sendMessage(I.t("{cs}Map created successfully!"));
+                        } else if (inventoryFull && (result instanceof PosterMap && !((PosterMap) result).hasColumnData())) {
+                            // Poster map was too big, parts need to be retrieved
+                            ImageOnMap.getPlugin().getLogger().info("[NewCommand] Poster map too big for inventory: " + player.getName());
                             info(I.t("The rendered map was too big to fit in your inventory."));
                             info(I.t("Use '/maptool getremaining' to get the remaining maps."));
+                        } else {
+                            // Inventory was full
+                            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Inventory full for " + player.getName());
+                            player.sendMessage(I.t("{ce}Your inventory is full! Use '/maptool getremaining' to get your map."));
                         }
                     });
         } finally {
