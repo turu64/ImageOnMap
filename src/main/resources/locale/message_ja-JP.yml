@@ -9,6 +9,9 @@ economy:
   insufficient-funds-details: "{ce}コスト: {0}、所持金: {1}"
   charge-failed: "{ce}アカウントからの請求に失敗しました。地図作成をキャンセルしました。"
   inventory-full: "{ce}インベントリがいっぱいです！ '/maptool getremaining' で地図を入手してください。"
+  quota-exceeded: "{ce}地図を作成できません: {0}"
+  quota-error: "{ce}地図作成に失敗しました: {0}"
+  render-failed: "{ce}地図のレンダリングに失敗しました。画像URLを確認して再度お試しください。"
 
   # 確認ダイアログ
   confirmation-title: "地図作成の確認"

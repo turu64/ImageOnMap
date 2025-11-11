@@ -9,6 +9,9 @@ economy:
   insufficient-funds-details: "{ce}Cost: {0}, Your balance: {1}"
   charge-failed: "{ce}Failed to charge your account. Map creation cancelled."
   inventory-full: "{ce}Your inventory is full! Use '/maptool getremaining' to get your map."
+  quota-exceeded: "{ce}Cannot create map: {0}"
+  quota-error: "{ce}Map creation failed: {0}"
+  render-failed: "{ce}Failed to render the map. Please check the image URL and try again."
 
   # Confirmation dialog
   confirmation-title: "Map Creation Confirmation"

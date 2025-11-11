@@ -167,6 +167,16 @@ public abstract class MapManager {
         return getPlayerMapStore(playerUUID).getPlayerMapLimit();
     }
 
+    /**
+     * Checks if a player can create maps with the given count without exceeding quota
+     * @param playerUUID The player's UUID
+     * @param newMapsCount The number of new maps to create
+     * @throws MapManagerException if the player would exceed their map quota
+     */
+    public static void checkMapLimitForPlayer(UUID playerUUID, int newMapsCount) throws MapManagerException {
+        getPlayerMapStore(playerUUID).checkMapLimit(newMapsCount);
+    }
+
     public static ImageMap getMap(UUID playerUUID, String mapId) {
         return getPlayerMapStore(playerUUID).getMap(mapId);
     }

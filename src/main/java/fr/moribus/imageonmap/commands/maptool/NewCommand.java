@@ -47,6 +47,7 @@ import fr.moribus.imageonmap.image.ImageRendererExecutor;
 import fr.moribus.imageonmap.image.ImageUtils;
 import fr.moribus.imageonmap.image.PosterImage;
 import fr.moribus.imageonmap.map.MapManager;
+import fr.moribus.imageonmap.map.MapManagerException;
 import fr.moribus.imageonmap.map.PosterMap;
 import fr.moribus.imageonmap.commands.CommandException;
 import fr.moribus.imageonmap.commands.CommandInfo;
@@ -190,6 +191,20 @@ public class NewCommand extends IoMCommand {
             return;
         }
 
+        // Check map quota BEFORE charging
+        try {
+            MapManager.checkMapLimitForPlayer(player.getUniqueId(), estimatedMapCount);
+        } catch (MapManagerException ex) {
+            // Show user-friendly error message based on the reason
+            if (ex.getMessage().contains("maximum")) {
+                player.sendMessage(LocaleManager.getMessage("economy.quota-exceeded", ex.getMessage()));
+            } else {
+                player.sendMessage(LocaleManager.getMessage("economy.quota-error", ex.getMessage()));
+            }
+            ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Map quota check failed for " + player.getName() + ": " + ex.getMessage());
+            return;
+        }
+
         // Economy check and charge
         if (VaultEconomyManager.isEnabled() && !Permissions.BYPASS_COST.grantedTo(player)) {
             if (estimatedMapCount > 0) {
@@ -227,7 +242,14 @@ public class NewCommand extends IoMCommand {
                         ImageOnMap.getPlugin().getLogger().log(Level.SEVERE, "[NewCommand] Rendering failed for " + player.getName(), exception);
                         // Schedule message on main thread
                         org.bukkit.Bukkit.getScheduler().runTask(ImageOnMap.getPlugin(), () -> {
-                            player.sendMessage(I.t("{ce}Map rendering failed: {0}", exception.getMessage()));
+                            // Check if it's a quota exception
+                            if (exception.getCause() instanceof MapManagerException) {
+                                player.sendMessage(LocaleManager.getMessage("economy.quota-exceeded", exception.getCause().getMessage()));
+                            } else {
+                                // Generic user-friendly error message
+                                player.sendMessage(LocaleManager.getMessage("economy.render-failed"));
+                            }
+                            ActionBar.removeMessage(player);
                         });
                         return null;
                     })
