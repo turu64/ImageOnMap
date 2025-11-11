@@ -209,7 +209,7 @@ public class ImageRendererExecutor {
         PosterImage poster = new PosterImage(image);
 
         int mapCount = poster.getImagesCount();
-        MapManager.checkMapLimit(mapCount, playerUUID);
+        MapManager.checkMapLimit(1, playerUUID); // Check for 1 map (not map blocks)
 
         int[] mapsIDs = CompletableFuture.supplyAsync(() -> MapManager.getNewMapsIds(mapCount), getMainThread()).join();
 
