@@ -158,6 +158,15 @@ public abstract class MapManager {
         return getPlayerMapStore(playerUUID).getMapCount();
     }
 
+    /**
+     * Gets the map limit for a player, checking permissions first, then falling back to config
+     * @param playerUUID The player's UUID
+     * @return The map limit, or 0 for unlimited
+     */
+    public static int getPlayerMapLimit(UUID playerUUID) {
+        return getPlayerMapStore(playerUUID).getPlayerMapLimit();
+    }
+
     public static ImageMap getMap(UUID playerUUID, String mapId) {
         return getPlayerMapStore(playerUUID).getMap(mapId);
     }

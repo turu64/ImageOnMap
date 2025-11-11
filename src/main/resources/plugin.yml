@@ -109,6 +109,14 @@ permissions:
     description: "Allows you to create and update maps without paying the economy cost."
     default: op
 
+  imageonmap.mapquota.unlimited:
+    description: "Allows unlimited map creation, bypassing the map-player-limit config."
+    default: op
+
+  imageonmap.mapquota.<number>:
+    description: "Sets a custom map limit for the player (e.g., imageonmap.mapquota.50 allows 50 maps). If multiple quota permissions are present, the highest value is used."
+    default: false
+
   imageonmap.update:
     description: "Allows you to update an existing map with a new image."
     default: true

@@ -120,6 +120,18 @@ You can grant `imageonmap.*` to users, as this permission is a shortcut for all 
 
 - `imageonmap.bypasscost` — Allows players to create and update maps without paying the economy cost. Default: `op`
 
+#### Map quota permissions
+
+These permissions allow you to override the `map-player-limit` config setting on a per-player basis:
+
+- `imageonmap.mapquota.unlimited` — Allows unlimited map creation, bypassing the configured limit. Default: `op`
+- `imageonmap.mapquota.<number>` — Sets a custom map limit for the player (e.g., `imageonmap.mapquota.50` allows 50 maps). If a player has multiple quota permissions, the highest value is used. Default: `false`
+
+**Examples:**
+- Give a VIP player 100 maps: Grant `imageonmap.mapquota.100`
+- Give admins unlimited maps: Grant `imageonmap.mapquota.unlimited`
+- Default players use the `map-player-limit` value from config.yml
+
 
 ## Configuration
 

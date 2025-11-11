@@ -49,13 +49,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerMapStore implements ConfigurationSerializable {
@@ -167,7 +170,7 @@ public class PlayerMapStore implements ConfigurationSerializable {
     }
 
     public void checkMapLimit(int newMapsCount) throws MapManagerException {
-        int limit = PluginConfiguration.MAP_PLAYER_LIMIT.get();
+        int limit = getPlayerMapLimit();
         if (limit <= 0) {
             return;
         }
@@ -175,6 +178,48 @@ public class PlayerMapStore implements ConfigurationSerializable {
         if (getMapCount() + newMapsCount > limit) {
             throw new MapManagerException(Reason.MAXIMUM_PLAYER_MAPS_EXCEEDED, limit);
         }
+    }
+
+    /**
+     * Gets the map limit for this player, checking permissions first, then falling back to config
+     * @return The map limit, or 0 for unlimited
+     */
+    public int getPlayerMapLimit() {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null) {
+            // Player is offline, use config default
+            return PluginConfiguration.MAP_PLAYER_LIMIT.get();
+        }
+
+        // Check for unlimited permission
+        if (player.hasPermission("imageonmap.mapquota.unlimited")) {
+            return 0; // 0 = unlimited
+        }
+
+        // Check for specific quota permissions (e.g., imageonmap.mapquota.50)
+        int maxQuota = -1;
+        for (PermissionAttachmentInfo permInfo : player.getEffectivePermissions()) {
+            String permission = permInfo.getPermission();
+            if (permission.startsWith("imageonmap.mapquota.") && permInfo.getValue()) {
+                String quotaStr = permission.substring("imageonmap.mapquota.".length());
+                try {
+                    int quota = Integer.parseInt(quotaStr);
+                    if (quota > maxQuota) {
+                        maxQuota = quota;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore invalid quota permissions (like "unlimited")
+                }
+            }
+        }
+
+        // If a specific quota was found, use it
+        if (maxQuota >= 0) {
+            return maxQuota;
+        }
+
+        // Fall back to config default
+        return PluginConfiguration.MAP_PLAYER_LIMIT.get();
     }
 
     public UUID getUUID() {
