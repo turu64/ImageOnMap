@@ -42,3 +42,7 @@ economy:
   # 0.5 = 50% refund, 1.0 = 100% refund
   refund-percentage: 0.5
 
+  # Locale for economy messages (e.g., en-US, ja-JP)
+  # Users can copy locale/message_en-US.yml to message_ja-JP.yml and translate
+  locale: en-US
+

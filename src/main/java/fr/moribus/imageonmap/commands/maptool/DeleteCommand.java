@@ -40,6 +40,7 @@ import fr.moribus.imageonmap.ImageOnMap;
 import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
 import fr.moribus.imageonmap.economy.VaultEconomyManager;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.map.ImageMap;
 import fr.moribus.imageonmap.map.MapManager;
 import fr.moribus.imageonmap.map.MapManagerException;
@@ -129,7 +130,7 @@ public class DeleteCommand extends IoMCommand {
                         if (VaultEconomyManager.refundPlayer(sender, mapCount)) {
                             double refundAmount = VaultEconomyManager.calculateMapCost(mapCount)
                                 * fr.moribus.imageonmap.PluginConfiguration.ECONOMY_REFUND_PERCENTAGE.get();
-                            sender.sendMessage(I.t("{cs}Refunded {0} for {1} map blocks.",
+                            sender.sendMessage(LocaleManager.getMessage("economy.delete.refunded",
                                 VaultEconomyManager.formatCurrency(refundAmount), mapCount));
                         }
                     }

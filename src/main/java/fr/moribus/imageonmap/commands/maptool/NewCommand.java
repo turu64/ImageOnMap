@@ -42,6 +42,7 @@ import fr.moribus.imageonmap.commands.IoMCommand;
 import fr.moribus.imageonmap.commands.Commands;
 import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.i18n.I;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.image.ImageRendererExecutor;
 import fr.moribus.imageonmap.image.ImageUtils;
 import fr.moribus.imageonmap.image.PosterImage;
@@ -120,7 +121,7 @@ public class NewCommand extends IoMCommand {
 
         // Check if the map size calculation failed
         if (estimatedMapCount == 0) {
-            player.sendMessage(I.t("{ce}Invalid image URL or unable to calculate map size."));
+            player.sendMessage(LocaleManager.getMessage("economy.invalid-url"));
             ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Failed to calculate map size for URL: " + url);
             return;
         }
@@ -146,7 +147,7 @@ public class NewCommand extends IoMCommand {
                 .build());
 
             player.sendMessage(Component.text()
-                .append(Component.text(I.t("Map Creation Confirmation")).color(NamedTextColor.YELLOW))
+                .append(Component.text(LocaleManager.getMessage("economy.confirmation-title")).color(NamedTextColor.YELLOW))
                 .build());
 
             player.sendMessage(Component.text()
@@ -154,18 +155,18 @@ public class NewCommand extends IoMCommand {
                 .build());
 
             player.sendMessage(Component.text()
-                .append(Component.text(I.t("Map Size: ")).color(NamedTextColor.AQUA))
-                .append(Component.text(I.t("{0} blocks", estimatedMapCount)).color(NamedTextColor.WHITE))
+                .append(Component.text(LocaleManager.getMessage("economy.map-size")).color(NamedTextColor.AQUA))
+                .append(Component.text(LocaleManager.getMessage("economy.blocks", estimatedMapCount)).color(NamedTextColor.WHITE))
                 .build());
 
             if (VaultEconomyManager.isEnabled()) {
                 player.sendMessage(Component.text()
-                    .append(Component.text(I.t("Cost: ")).color(NamedTextColor.AQUA))
+                    .append(Component.text(LocaleManager.getMessage("economy.cost")).color(NamedTextColor.AQUA))
                     .append(Component.text(VaultEconomyManager.formatCurrency(cost)).color(NamedTextColor.GOLD))
                     .build());
 
                 player.sendMessage(Component.text()
-                    .append(Component.text(I.t("Your Balance: ")).color(NamedTextColor.AQUA))
+                    .append(Component.text(LocaleManager.getMessage("economy.balance")).color(NamedTextColor.AQUA))
                     .append(Component.text(VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(player))).color(NamedTextColor.WHITE))
                     .build());
             }
@@ -175,10 +176,10 @@ public class NewCommand extends IoMCommand {
                 .build());
 
             player.sendMessage(Component.text()
-                .append(Component.text(I.t("Click to confirm: ")).color(NamedTextColor.YELLOW))
-                .append(Component.text(I.t("[CONFIRM]"))
+                .append(Component.text(LocaleManager.getMessage("economy.click-to-confirm")).color(NamedTextColor.YELLOW))
+                .append(Component.text(LocaleManager.getMessage("economy.confirm-button"))
                     .color(NamedTextColor.GREEN)
-                    .hoverEvent(HoverEvent.showText(Component.text(I.t("Click to create the map"))))
+                    .hoverEvent(HoverEvent.showText(Component.text(LocaleManager.getMessage("economy.confirm-hover"))))
                     .clickEvent(ClickEvent.runCommand(confirmCommand)))
                 .build());
 
@@ -193,8 +194,8 @@ public class NewCommand extends IoMCommand {
                 ImageOnMap.getPlugin().getLogger().info("[NewCommand] Checking balance for " + player.getName() + ": cost=" + cost + ", balance=" + VaultEconomyManager.getBalance(player));
 
                 if (!VaultEconomyManager.hasEnoughMoney(player, estimatedMapCount)) {
-                    player.sendMessage(I.t("{ce}You don't have enough money to create this map!"));
-                    player.sendMessage(I.t("{ce}Cost: {0}, Your balance: {1}",
+                    player.sendMessage(LocaleManager.getMessage("economy.insufficient-funds"));
+                    player.sendMessage(LocaleManager.getMessage("economy.insufficient-funds-details",
                         VaultEconomyManager.formatCurrency(cost),
                         VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(player))));
                     ImageOnMap.getPlugin().getLogger().warning("[NewCommand] " + player.getName() + " has insufficient funds");
@@ -202,12 +203,12 @@ public class NewCommand extends IoMCommand {
                 }
 
                 if (!VaultEconomyManager.chargePlayer(player, estimatedMapCount)) {
-                    player.sendMessage(I.t("{ce}Failed to charge your account. Map creation cancelled."));
+                    player.sendMessage(LocaleManager.getMessage("economy.charge-failed"));
                     ImageOnMap.getPlugin().getLogger().severe("[NewCommand] Failed to charge " + player.getName());
                     return;
                 }
 
-                player.sendMessage(I.t("{cs}Charged {0} for {1} map blocks.",
+                player.sendMessage(LocaleManager.getMessage("economy.charged",
                     VaultEconomyManager.formatCurrency(cost), estimatedMapCount));
                 ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully charged " + player.getName() + " " + cost);
             }
@@ -254,7 +255,7 @@ public class NewCommand extends IoMCommand {
                             if (!inventoryFull) {
                                 // Successfully gave the map
                                 ImageOnMap.getPlugin().getLogger().info("[NewCommand] Successfully gave map to " + player.getName());
-                                player.sendMessage(I.t("{cs}Map created successfully!"));
+                                player.sendMessage(LocaleManager.getMessage("economy.created"));
                             } else if (inventoryFull && (result instanceof PosterMap && !((PosterMap) result).hasColumnData())) {
                                 // Poster map was too big, parts need to be retrieved
                                 ImageOnMap.getPlugin().getLogger().info("[NewCommand] Poster map too big for inventory: " + player.getName());
@@ -263,7 +264,7 @@ public class NewCommand extends IoMCommand {
                             } else {
                                 // Inventory was full
                                 ImageOnMap.getPlugin().getLogger().warning("[NewCommand] Inventory full for " + player.getName());
-                                player.sendMessage(I.t("{ce}Your inventory is full! Use '/maptool getremaining' to get your map."));
+                                player.sendMessage(LocaleManager.getMessage("economy.inventory-full"));
                             }
                         });
                     });

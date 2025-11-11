@@ -51,6 +51,7 @@ import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.gui.Gui;
 import fr.moribus.imageonmap.i18n.I18n;
 import fr.moribus.imageonmap.image.MapInitEvent;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.map.MapManager;
 import fr.moribus.imageonmap.ui.MapItemManager;
 
@@ -126,6 +127,7 @@ public final class ImageOnMap extends JavaPlugin {
 
         //Init all the things !
         I18n.setPrimaryLocale(PluginConfiguration.LANG.get());
+        LocaleManager.init(PluginConfiguration.ECONOMY_LOCALE.get());
 
         MapManager.init();
         MapInitEvent.init();
@@ -189,6 +191,11 @@ public final class ImageOnMap extends JavaPlugin {
 
         if (!getConfig().contains("economy.refund-percentage")) {
             getConfig().set("economy.refund-percentage", 0.5);
+            needsSave = true;
+        }
+
+        if (!getConfig().contains("economy.locale")) {
+            getConfig().set("economy.locale", "en-US");
             needsSave = true;
         }
 

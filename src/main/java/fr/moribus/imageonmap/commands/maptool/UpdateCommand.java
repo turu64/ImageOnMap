@@ -41,6 +41,7 @@ import fr.moribus.imageonmap.Permissions;
 import fr.moribus.imageonmap.commands.IoMCommand;
 import fr.moribus.imageonmap.economy.VaultEconomyManager;
 import fr.moribus.imageonmap.i18n.I;
+import fr.moribus.imageonmap.locale.LocaleManager;
 import fr.moribus.imageonmap.image.ImageRendererExecutor;
 import fr.moribus.imageonmap.image.ImageUtils;
 import fr.moribus.imageonmap.map.ImageMap;
@@ -183,19 +184,19 @@ public class UpdateCommand extends IoMCommand {
                     double cost = VaultEconomyManager.calculateMapCost(mapCount);
 
                     if (!VaultEconomyManager.hasEnoughMoney(playerSender, mapCount)) {
-                        playerSender.sendMessage(I.t("{ce}You don't have enough money to update this map!"));
-                        playerSender.sendMessage(I.t("{ce}Cost: {0}, Your balance: {1}",
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.insufficient-funds"));
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.insufficient-funds-details",
                             VaultEconomyManager.formatCurrency(cost),
                             VaultEconomyManager.formatCurrency(VaultEconomyManager.getBalance(playerSender))));
                         return;
                     }
 
                     if (!VaultEconomyManager.chargePlayer(playerSender, mapCount)) {
-                        playerSender.sendMessage(I.t("{ce}Failed to charge your account. Map update cancelled."));
+                        playerSender.sendMessage(LocaleManager.getMessage("economy.update.charge-failed"));
                         return;
                     }
 
-                    playerSender.sendMessage(I.t("{cs}Charged {0} for updating {1} map blocks.",
+                    playerSender.sendMessage(LocaleManager.getMessage("economy.update.charged",
                         VaultEconomyManager.formatCurrency(cost), mapCount));
                 }
 

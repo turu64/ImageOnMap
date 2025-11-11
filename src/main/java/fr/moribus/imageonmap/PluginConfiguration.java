@@ -89,5 +89,7 @@ public final class PluginConfiguration {
         return Math.max(0.0, Math.min(1.0, percentage));
     };
 
+    public static final Supplier<String> ECONOMY_LOCALE = () -> PLUGIN.getConfig().getString("economy.locale", "en-US");
+
 }
 
